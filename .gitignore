@@ -1,0 +1,23 @@
+# Python virtual environment
+env/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Django database
+db.sqlite3
+
+# Testing and coverage files
+.coverage
+htmlcov/
+.pytest_cache/
+
+# PyCharm settings
+.idea/
+
+# Operating-system files
+.DS_Store
+Thumbs.db
