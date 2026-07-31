@@ -1,5 +1,12 @@
 from .distance import Distance
 from .itinerary import Itinerary
-from .trail import Trail
+from .trail import BackpackingRoute, DayHike, Trail, TrailRun
 
-__all__ = ["Distance", "Itinerary", "Trail"]
+__all__ = [
+    "BackpackingRoute",
+    "DayHike",
+    "Distance",
+    "Itinerary",
+    "Trail",
+    "TrailRun",
+]
