@@ -10,7 +10,7 @@ from waypoint_core import (
 
 
 def main():
-    """Demonstrate Week 8 inheritance, mixins and polymorphism."""
+    """Demonstrate the mandatory Week 8 behaviours."""
 
     day_hike = DayHike(
         trail_id=1,
@@ -92,6 +92,41 @@ def main():
 
     print("GuidedDayHike MRO:")
     print(mro_names)
+
+    print()
+    print("Distance operator overloading:")
+
+    combined = Distance(5, "km") + Distance(1, "mi")
+    remaining = Distance(10, "km") - Distance(2, "mi")
+
+    print("5 km + 1 mi =", combined)
+    print("10 km - 2 mi =", remaining)
+    print(
+        "1 mi equals its kilometre conversion:",
+        Distance(1, "mi")
+        == Distance(1, "mi").convert("km"),
+    )
+
+    sorted_distances = sorted(
+        [
+            Distance(5, "km"),
+            Distance(1, "mi"),
+            Distance(3, "km"),
+        ]
+    )
+
+    print(
+        "Sorted distances:",
+        ", ".join(
+            str(distance)
+            for distance in sorted_distances
+        ),
+    )
+
+    print(
+        "Developer representation:",
+        repr(Distance(5, "km")),
+    )
 
 
 if __name__ == "__main__":
