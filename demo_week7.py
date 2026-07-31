@@ -1,4 +1,4 @@
-from waypoint_core import Distance, Itinerary, Trail
+from waypoint_core import DayHike, Distance, Itinerary, Trail
 
 
 def main():
@@ -7,7 +7,7 @@ def main():
     print("WAYPOINT — WEEK 7 DEMONSTRATION")
     print("-" * 40)
 
-    lake_trail = Trail.from_dict(
+    lake_trail = DayHike.from_dict(
         {
             "id": 101,
             "name": "Lake Trail",
@@ -18,7 +18,7 @@ def main():
         }
     )
 
-    forest_trail = Trail(
+    forest_trail = DayHike(
         trail_id=102,
         name="Forest Trail",
         distance=Distance(3.5, "km"),
@@ -26,7 +26,7 @@ def main():
         difficulty="moderate",
     )
 
-    hill_trail = Trail(
+    hill_trail = DayHike(
         trail_id=103,
         name="Hill Trail",
         distance=Distance(4, "km"),
@@ -51,7 +51,7 @@ def main():
         f"{total_mi.magnitude:.2f} {total_mi.unit}"
     )
 
-    updated_lake_record = Trail(
+    updated_lake_record = DayHike(
         trail_id=101,
         name="Updated Lake Trail",
         distance=Distance(3, "km"),
@@ -78,7 +78,7 @@ def main():
 
     original_default = Trail.default_unit
 
-    existing_trail = Trail.from_dict(
+    existing_trail = DayHike.from_dict(
         {
             "id": 201,
             "name": "Existing Trail",
@@ -90,7 +90,7 @@ def main():
 
     Trail.set_default_unit("mi")
 
-    future_trail = Trail.from_dict(
+    future_trail = DayHike.from_dict(
         {
             "id": 202,
             "name": "Future Trail",

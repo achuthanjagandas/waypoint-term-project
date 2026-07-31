@@ -1,6 +1,6 @@
 import unittest
 
-from waypoint_core import Distance, Itinerary, Trail
+from waypoint_core import DayHike, Distance, Itinerary, Trail
 
 
 class ItineraryTests(unittest.TestCase):
@@ -12,7 +12,7 @@ class ItineraryTests(unittest.TestCase):
         magnitude: float,
         unit: str = "km",
     ) -> Trail:
-        return Trail(
+        return DayHike(
             trail_id=trail_id,
             name=name,
             distance=Distance(magnitude, unit),
@@ -69,6 +69,7 @@ class ItineraryTests(unittest.TestCase):
         total = itinerary.total_distance("km")
 
         expected_total = 5 + Distance(2, "mi").convert("km").magnitude
+
         self.assertAlmostEqual(
             total.magnitude,
             expected_total,
@@ -91,6 +92,7 @@ class ItineraryTests(unittest.TestCase):
         ]
 
         itinerary = Itinerary(original_list)
+
         original_list.append(
             self.create_trail(2, "Forest Trail", 3)
         )
