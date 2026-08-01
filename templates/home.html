@@ -22,7 +22,10 @@
             <p>{{ message }}</p>
 
             <div class="actions">
-                <a class="button" href="/">Explore Waypoint</a>
+                <a class="button" href="{% url 'search' %}">Search trails</a>
+                <a class="button button-secondary" href="{% url 'report' %}">
+                    Submit a trail report
+                </a>
             </div>
         </section>
 
