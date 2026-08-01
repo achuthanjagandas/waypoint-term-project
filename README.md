@@ -1,12 +1,12 @@
 # Waypoint
 
-Waypoint is an individual term project for CCGC-5003 Application Programming.
+Waypoint is my individual term project for CCGC-5003 Application Programming.
 
-The project begins as a pure-Python object-oriented domain engine and later develops into a Django trail-finder website.
+I began the project as a pure-Python object-oriented domain engine and am developing it into a Django trail-finder website.
 
 ## Current development stage
 
-Week 8 domain hierarchy, polymorphism, mixins, and operators.
+Week 9 Django project setup.
 
 ## Domain-engine features
 
@@ -25,69 +25,153 @@ The current domain engine includes:
 - A further subclass named `GuidedDayHike`
 - Method overriding and `super()`
 - `ElevationMixin` and `RatingMixin`
-- Method Resolution Order demonstration
+- A Method Resolution Order demonstration
 - A polymorphic estimated-time loop
-- Duck-typed `FakeTrail`
+- A duck-typed `FakeTrail`
 - A validated `Itinerary`
 - Independent itinerary trail collections
 - Total-distance calculation
 
+## Django setup
+
+The project now includes:
+
+- Python 3.12
+- A virtual environment named `env`
+- Django 4.2.30
+- A `requirements.txt` dependency file
+- The Django project package named `waypoint`
+- The Django management script `manage.py`
+- SQLite for local development
+- The existing importable `waypoint_core` package
+
+## Project structure
+
+```text
+waypoint-term-project/
+├── waypoint/
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── waypoint_core/
+├── tests/
+├── demo_week7.py
+├── demo_week8.py
+├── manage.py
+├── requirements.txt
+├── .gitignore
+└── README.md
+
 ## Python version
 
-Python 3.12 is used for compatibility with the Django 4.2 portion of the project.
+I use Python 3.12 because it is compatible with the required Django 4.2 release.
 
-## Activate the virtual environment
+## Setup from a fresh clone
 
-Windows PowerShell:
+Clone the repository and enter the project folder:
 
-`.\env\Scripts\Activate.ps1`
+```powershell
+git clone https://github.com/achuthanjagandas/waypoint-term-project.git
+Set-Location waypoint-term-project
+```
+
+Create the required virtual environment:
+
+```powershell
+py -3.12 -m venv env
+```
+
+Activate the virtual environment:
+
+```powershell
+.\env\Scripts\Activate.ps1
+```
+
+Install the dependencies:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+Apply the Django migrations:
+
+```powershell
+python manage.py migrate
+```
+
+Check the Django configuration:
+
+```powershell
+python manage.py check
+```
+
+Start the development server:
+
+```powershell
+python manage.py runserver
+```
+
+Open this address in a browser:
+
+```text
+http://127.0.0.1:8000/
+```
+
+Stop the server by pressing `Ctrl + C` in the terminal.
 
 ## Run the demonstrations
 
-Week 7:
+Run the Week 7 demonstration:
 
-`python demo_week7.py`
+```powershell
+python demo_week7.py
+```
 
-Week 8:
+Run the Week 8 demonstration:
 
-`python demo_week8.py`
+```powershell
+python demo_week8.py
+```
 
-## Run the tests
+## Run the pure-Python tests
 
-From the project root:
-
-`python -m unittest discover -s tests -v`
+```powershell
+python -m unittest discover -s tests -v
+```
 
 ## Estimated-time formulas
 
 ### DayHike
 
-Distance in kilometres divided by hiking pace, plus one hour for every 600 metres of elevation gain.
+I calculate the estimated time by dividing the distance in kilometres by the hiking pace and adding one hour for every 600 metres of elevation gain.
 
 ### BackpackingRoute
 
-Distance in kilometres divided by backpacking pace, plus one hour for every 500 metres of elevation gain, plus 30 minutes for each overnight stop.
+I calculate the estimated time by dividing the distance in kilometres by the backpacking pace, adding one hour for every 500 metres of elevation gain, 
+and adding 30 minutes for each overnight stop.
 
 ### TrailRun
 
-Distance in kilometres divided by running pace, plus one hour for every 900 metres of elevation gain.
+I calculate the estimated time by dividing the distance in kilometres by the running pace and adding one hour for every 900 metres of elevation gain.
 
 ### GuidedDayHike
 
-Uses the normal `DayHike` estimate and adds 30 minutes for a safety briefing.
+I use the normal `DayHike` estimate and add 30 minutes for a safety briefing.
 
 ## Mixed-unit policy
 
-When arithmetic or comparisons involve kilometres and miles, the right-hand `Distance` is automatically converted into the left-hand object's unit.
+When arithmetic or comparisons involve kilometres and miles, I convert the right-hand `Distance` into the left-hand object’s unit.
 
 Examples:
 
 - `Distance(5, "km") + Distance(1, "mi")` returns kilometres.
 - `Distance(5, "mi") + Distance(1, "km")` returns miles.
-- Equality and ordering also convert the right-hand value before comparing.
+- Equality and ordering convert the right-hand value before comparing.
 - Subtraction raises `ValueError` when it would produce a negative distance.
 
-The itinerary uses the same conversion principle by converting every trail into the requested total-distance unit before adding the magnitudes.
+The itinerary follows the same principle by converting every trail into the requested total-distance unit before adding the magnitudes.
 
 ## AI-assistance disclosure
 
