@@ -6,7 +6,7 @@ I began the project as a pure-Python object-oriented domain engine and am develo
 
 ## Current development stage
 
-Week 9 Django project setup.
+Week 10 Django views, URLs, forms, and search.
 
 ## Domain-engine features
 
@@ -44,6 +44,30 @@ The project now includes:
 - The Django management script `manage.py`
 - SQLite for local development
 - The existing importable `waypoint_core` package
+
+## Week 10 web features
+
+I added the following Django web features:
+
+- A styled Waypoint homepage
+- Shared project-level templates and static CSS
+- Context variables rendered in the homepage template
+- Named URL routes
+- A Django trail-report form
+- Required-field and email validation
+- CSRF protection
+- A personalized report confirmation page
+- A trail-name search view
+- Safe handling when the `q` query parameter is missing
+- Search results and no-results messages
+
+## Website routes
+
+- `/` displays the Waypoint homepage.
+- `/report/` displays and processes the trail-report form.
+- `/search/` displays the trail search page.
+- `/search/?q=Lake` searches for matching trail names.
+- `/admin/` displays the Django administration login page.
 
 ## Project structure
 

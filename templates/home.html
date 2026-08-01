@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waypoint</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <h1>Waypoint</h1>
+            <p>Trail finder and trip planner</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <p class="eyebrow">Explore with confidence</p>
+            <h2>{{ greeting }}</h2>
+            <p>{{ message }}</p>
+
+            <div class="actions">
+                <a class="button" href="{% url 'search' %}">Search trails</a>
+                <a class="button button-secondary" href="{% url 'report' %}">
+                    Submit a trail report
+                </a>
+            </div>
+        </section>
+
+        <section class="feature-grid">
+            <article class="feature-card">
+                <h3>Discover trails</h3>
+                <p>Browse trails by distance, elevation, and difficulty.</p>
+            </article>
+
+            <article class="feature-card">
+                <h3>Plan a trip</h3>
+                <p>Compare routes and estimate the time needed for your adventure.</p>
+            </article>
+
+            <article class="feature-card">
+                <h3>Share reports</h3>
+                <p>Send trail information and help keep the catalogue useful.</p>
+            </article>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2026 Waypoint</p>
+        </div>
+    </footer>
+</body>
+</html>
