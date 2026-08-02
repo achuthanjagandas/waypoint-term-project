@@ -6,7 +6,7 @@ I began the project as a pure-Python object-oriented domain engine and am develo
 
 ## Current development stage
 
-Week 10 Django views, URLs, forms, and search.
+Week 11 shared templates and data-driven trail catalog.
 
 ## Domain-engine features
 
@@ -60,6 +60,31 @@ I added the following Django web features:
 - A trail-name search view
 - Safe handling when the `q` query parameter is missing
 - Search results and no-results messages
+
+## Week 11 template and catalog features
+
+I added a shared Django template layout and a data-driven trail catalog.
+
+The Week 11 work includes:
+
+- A shared `base.html` template
+- A reusable navbar partial
+- A reusable footer partial
+- Existing pages refactored to extend the shared base template
+- A catalog route at `/catalog/`
+- Six trail dictionaries rendered through a Django template loop
+- Automatic row numbering with `forloop.counter`
+- Conditional `CLOSED`, `HARD`, and difficulty badges
+- Distance formatting with the `floatformat:1` template filter
+- A shared Catalog link across the homepage, search page, report page, and catalog
+- Django tests for catalog content, formatting, badges, numbering, and shared navigation
+
+## Week 11 catalog route
+
+- `/catalog/` displays the temporary data-driven trail catalog.
+
+The Week 11 catalog currently uses trail dictionaries supplied by the view.
+In Week 12, these temporary records will be replaced by Django model instances stored in the database.
 
 ## Website routes
 
