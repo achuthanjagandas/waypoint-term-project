@@ -312,3 +312,93 @@ form textarea:focus {
         margin: 0.75rem auto 0;
     }
 }
+
+/* Trail catalog */
+
+.catalog-heading {
+    max-width: 760px;
+    margin: 0 auto 2rem;
+    text-align: center;
+}
+
+.catalog-heading h2 {
+    margin: 0.25rem 0 0.75rem;
+    font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.catalog-heading > p:last-child {
+    color: var(--muted);
+}
+
+.catalog-panel {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    background: var(--surface);
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.catalog-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.catalog-table th,
+.catalog-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    vertical-align: middle;
+}
+
+.catalog-table th {
+    background: #e8efe9;
+    color: var(--primary-dark);
+    font-size: 0.85rem;
+    letter-spacing: 0.03rem;
+    text-transform: uppercase;
+}
+
+.catalog-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.catalog-table tbody tr:hover {
+    background: #f8faf7;
+}
+
+.badge {
+    display: inline-block;
+    min-width: 5.5rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.badge-standard {
+    background: #e0eee5;
+    color: var(--primary-dark);
+}
+
+.badge-hard {
+    background: #fff0cc;
+    color: #7a4b00;
+}
+
+.badge-closed {
+    background: #f8dddd;
+    color: #922d2d;
+}
+
+@media (max-width: 650px) {
+    .catalog-table th,
+    .catalog-table td {
+        padding: 0.75rem;
+        white-space: nowrap;
+    }
+}
