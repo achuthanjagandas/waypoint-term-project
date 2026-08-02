@@ -1,44 +1,30 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Submit a Trail Report | Waypoint</title>
-    <link rel="stylesheet" href="{% static 'style.css' %}">
-</head>
-<body>
-    <header class="site-header">
-        <div class="container">
-            <h1><a class="brand-link" href="{% url 'home' %}">Waypoint</a></h1>
-            <p>Trail finder and trip planner</p>
-        </div>
-    </header>
+{% extends "base.html" %}
 
-    <main class="container page-content">
-        <section class="form-panel">
-            <p class="eyebrow">Community information</p>
-            <h2>Submit a trail report</h2>
-            <p>
-                Share current trail conditions to help other visitors
-                plan safely.
-            </p>
+{% block title %}
+Submit a Trail Report | Waypoint
+{% endblock %}
 
-            <form method="post">
-                {% csrf_token %}
-                {{ form.as_p }}
+{% block content %}
+<div class="container page-content">
+    <section class="form-panel">
+        <p class="eyebrow">Community information</p>
 
-                <button class="button" type="submit">
-                    Submit report
-                </button>
-            </form>
-        </section>
-    </main>
+        <h2>Submit a trail report</h2>
 
-    <footer class="site-footer">
-        <div class="container">
-            <p>&copy; 2026 Waypoint</p>
-        </div>
-    </footer>
-</body>
-</html>
+        <p>
+            Share current trail conditions to help other visitors
+            plan safely.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <button class="button" type="submit">
+                Submit report
+            </button>
+        </form>
+    </section>
+</div>
+{% endblock %}

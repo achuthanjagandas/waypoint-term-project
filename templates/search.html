@@ -1,72 +1,59 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Trails | Waypoint</title>
-    <link rel="stylesheet" href="{% static 'style.css' %}">
-</head>
-<body>
-    <header class="site-header">
-        <div class="container">
-            <h1><a class="brand-link" href="{% url 'home' %}">Waypoint</a></h1>
-            <p>Trail finder and trip planner</p>
-        </div>
-    </header>
+{% extends "base.html" %}
 
-    <main class="container page-content">
-        <section class="search-panel">
-            <p class="eyebrow">Find a route</p>
-            <h2>Search trails</h2>
+{% block title %}
+Search Trails | Waypoint
+{% endblock %}
 
-            <form class="search-form" method="get">
-                <label for="search-query">Trail name</label>
+{% block content %}
+<div class="container page-content">
+    <section class="search-panel">
+        <p class="eyebrow">Find a route</p>
 
-                <div class="search-row">
-                    <input
-                        id="search-query"
-                        name="q"
-                        type="search"
-                        value="{{ query }}"
-                        placeholder="Example: Lake"
-                    >
-                    <button class="button" type="submit">Search</button>
+        <h2>Search trails</h2>
+
+        <form class="search-form" method="get">
+            <label for="search-query">Trail name</label>
+
+            <div class="search-row">
+                <input
+                    id="search-query"
+                    name="q"
+                    type="search"
+                    value="{{ query }}"
+                    placeholder="Example: Lake"
+                >
+
+                <button class="button" type="submit">
+                    Search
+                </button>
+            </div>
+        </form>
+    </section>
+
+    {% if search_performed %}
+        <section class="results-section">
+            <h3>Results for “{{ query }}”</h3>
+
+            {% if results %}
+                <div class="feature-grid">
+                    {% for trail in results %}
+                        <article class="feature-card">
+                            <h4>{{ trail.name }}</h4>
+                            <p>Distance: {{ trail.distance }}</p>
+                            <p>Difficulty: {{ trail.difficulty }}</p>
+                        </article>
+                    {% endfor %}
                 </div>
-            </form>
+            {% else %}
+                <p class="empty-message">
+                    No trails matched your search.
+                </p>
+            {% endif %}
         </section>
-
-        {% if search_performed %}
-            <section class="results-section">
-                <h3>Results for “{{ query }}”</h3>
-
-                {% if results %}
-                    <div class="feature-grid">
-                        {% for trail in results %}
-                            <article class="feature-card">
-                                <h4>{{ trail.name }}</h4>
-                                <p>Distance: {{ trail.distance }}</p>
-                                <p>Difficulty: {{ trail.difficulty }}</p>
-                            </article>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p class="empty-message">
-                        No trails matched your search.
-                    </p>
-                {% endif %}
-            </section>
-        {% else %}
-            <p class="empty-message">
-                Enter part of a trail name to begin searching.
-            </p>
-        {% endif %}
-    </main>
-
-    <footer class="site-footer">
-        <div class="container">
-            <p>&copy; 2026 Waypoint</p>
-        </div>
-    </footer>
-</body>
-</html>
+    {% else %}
+        <p class="empty-message">
+            Enter part of a trail name to begin searching.
+        </p>
+    {% endif %}
+</div>
+{% endblock %}

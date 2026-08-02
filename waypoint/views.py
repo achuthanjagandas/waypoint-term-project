@@ -27,6 +27,52 @@ SAMPLE_TRAILS = [
 ]
 
 
+CATALOG_TRAILS = [
+    {
+        "name": "Lake View Trail",
+        "distance_km": 5.25,
+        "elevation_gain": 120,
+        "difficulty": "easy",
+        "is_open": True,
+    },
+    {
+        "name": "Forest Ridge",
+        "distance_km": 8.44,
+        "elevation_gain": 340,
+        "difficulty": "moderate",
+        "is_open": True,
+    },
+    {
+        "name": "Summit Loop",
+        "distance_km": 12.08,
+        "elevation_gain": 780,
+        "difficulty": "expert",
+        "is_open": True,
+    },
+    {
+        "name": "River Path",
+        "distance_km": 3.76,
+        "elevation_gain": 45,
+        "difficulty": "easy",
+        "is_open": False,
+    },
+    {
+        "name": "Pine Valley Route",
+        "distance_km": 9.63,
+        "elevation_gain": 410,
+        "difficulty": "moderate",
+        "is_open": True,
+    },
+    {
+        "name": "Granite Peak Trail",
+        "distance_km": 14.91,
+        "elevation_gain": 960,
+        "difficulty": "expert",
+        "is_open": False,
+    },
+]
+
+
 def home(request):
     """Display the Waypoint homepage."""
     context = {
@@ -79,3 +125,12 @@ def search_trails(request):
     }
 
     return render(request, "search.html", context)
+
+
+def catalog(request):
+    """Display the temporary Week 11 trail catalogue."""
+    context = {
+        "trails": CATALOG_TRAILS,
+    }
+
+    return render(request, "catalog.html", context)

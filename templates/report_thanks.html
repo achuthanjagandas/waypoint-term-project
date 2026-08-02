@@ -1,44 +1,30 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Report Received | Waypoint</title>
-    <link rel="stylesheet" href="{% static 'style.css' %}">
-</head>
-<body>
-    <header class="site-header">
-        <div class="container">
-            <h1><a class="brand-link" href="{% url 'home' %}">Waypoint</a></h1>
-            <p>Trail finder and trip planner</p>
+{% extends "base.html" %}
+
+{% block title %}
+Report Received | Waypoint
+{% endblock %}
+
+{% block content %}
+<div class="container page-content">
+    <section class="form-panel confirmation">
+        <p class="eyebrow">Report received</p>
+
+        <h2>Thank you, {{ reporter_name }}!</h2>
+
+        <p>
+            Your report about <strong>{{ trail_name }}</strong>
+            was submitted successfully.
+        </p>
+
+        <div class="actions">
+            <a class="button" href="{% url 'home' %}">
+                Return home
+            </a>
+
+            <a class="button button-secondary" href="{% url 'report' %}">
+                Submit another report
+            </a>
         </div>
-    </header>
-
-    <main class="container page-content">
-        <section class="form-panel confirmation">
-            <p class="eyebrow">Report received</p>
-            <h2>Thank you, {{ reporter_name }}!</h2>
-            <p>
-                Your report about <strong>{{ trail_name }}</strong>
-                was submitted successfully.
-            </p>
-
-            <div class="actions">
-                <a class="button" href="{% url 'home' %}">
-                    Return home
-                </a>
-                <a class="button button-secondary" href="{% url 'report' %}">
-                    Submit another report
-                </a>
-            </div>
-        </section>
-    </main>
-
-    <footer class="site-footer">
-        <div class="container">
-            <p>&copy; 2026 Waypoint</p>
-        </div>
-    </footer>
-</body>
-</html>
+    </section>
+</div>
+{% endblock %}

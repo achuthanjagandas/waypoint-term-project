@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}
+Trail Catalog | Waypoint
+{% endblock %}
+
+{% block content %}
+<div class="container page-content">
+    <section class="catalog-heading">
+        <p class="eyebrow">Explore Waypoint</p>
+        <h2>Trail catalog</h2>
+        <p>
+            Compare trail distances, elevation gains, difficulties,
+            and current availability.
+        </p>
+    </section>
+
+    <section class="catalog-panel">
+        {% if trails %}
+            <div class="table-wrapper">
+                <table class="catalog-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">No.</th>
+                            <th scope="col">Trail</th>
+                            <th scope="col">Distance</th>
+                            <th scope="col">Elevation gain</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for trail in trails %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    <strong>{{ trail.name }}</strong>
+                                </td>
+                                <td>
+                                    {{ trail.distance_km|floatformat:1 }} km
+                                </td>
+                                <td>
+                                    {{ trail.elevation_gain }} m
+                                </td>
+                                <td>
+                                    {% if not trail.is_open %}
+                                        <span class="badge badge-closed">
+                                            CLOSED
+                                        </span>
+                                    {% elif trail.difficulty == "expert" %}
+                                        <span class="badge badge-hard">
+                                            HARD
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-standard">
+                                            {{ trail.difficulty|title }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="empty-message">
+                No trails are currently available.
+            </p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
