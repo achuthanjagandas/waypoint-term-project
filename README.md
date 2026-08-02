@@ -34,7 +34,7 @@ The current domain engine includes:
 
 ## Django setup
 
-The project now includes:
+The project currently includes:
 
 - Python 3.12
 - A virtual environment named `env`
@@ -44,6 +44,11 @@ The project now includes:
 - The Django management script `manage.py`
 - SQLite for local development
 - The existing importable `waypoint_core` package
+- Project-level templates
+- Project-level static files
+- Django forms
+- Named URL routes
+- Automated Django tests
 
 ## Week 10 web features
 
@@ -56,7 +61,7 @@ I added the following Django web features:
 - A Django trail-report form
 - Required-field and email validation
 - CSRF protection
-- A personalized report confirmation page
+- A personalized report-confirmation page
 - A trail-name search view
 - Safe handling when the `q` query parameter is missing
 - Search results and no-results messages
@@ -76,19 +81,15 @@ The Week 11 work includes:
 - Automatic row numbering with `forloop.counter`
 - Conditional `CLOSED`, `HARD`, and difficulty badges
 - Distance formatting with the `floatformat:1` template filter
-- A shared Catalog link across the homepage, search page, report page, and catalog
+- A shared Catalog link across the homepage, search page, report page, confirmation page, and catalog
 - Django tests for catalog content, formatting, badges, numbering, and shared navigation
 
-## Week 11 catalog route
-
-- `/catalog/` displays the temporary data-driven trail catalog.
-
-The Week 11 catalog currently uses trail dictionaries supplied by the view.
-In Week 12, these temporary records will be replaced by Django model instances stored in the database.
+The Week 11 catalog currently uses trail dictionaries supplied by the view. In Week 12, these temporary records will be replaced by Django model instances stored in the database.
 
 ## Website routes
 
 - `/` displays the Waypoint homepage.
+- `/catalog/` displays the temporary data-driven trail catalog.
 - `/report/` displays and processes the trail-report form.
 - `/search/` displays the trail search page.
 - `/search/?q=Lake` searches for matching trail names.
@@ -98,20 +99,51 @@ In Week 12, these temporary records will be replaced by Django model instances s
 
 ```text
 waypoint-term-project/
+├── static/
+│   └── style.css
+├── templates/
+│   ├── partials/
+│   │   ├── footer.html
+│   │   └── navbar.html
+│   ├── base.html
+│   ├── catalog.html
+│   ├── home.html
+│   ├── report_form.html
+│   ├── report_thanks.html
+│   └── search.html
+├── tests/
+│   ├── __init__.py
+│   ├── test_distance.py
+│   ├── test_distance_operators.py
+│   ├── test_itinerary.py
+│   ├── test_trail.py
+│   └── test_week8_mixins.py
 ├── waypoint/
 │   ├── __init__.py
 │   ├── asgi.py
+│   ├── forms.py
 │   ├── settings.py
+│   ├── tests.py
 │   ├── urls.py
+│   ├── views.py
 │   └── wsgi.py
 ├── waypoint_core/
-├── tests/
+│   ├── __init__.py
+│   ├── distance.py
+│   ├── guided.py
+│   ├── itinerary.py
+│   ├── mixins.py
+│   ├── polymorphism.py
+│   └── trail.py
 ├── demo_week7.py
 ├── demo_week8.py
 ├── manage.py
 ├── requirements.txt
 ├── .gitignore
 └── README.md
+```
+
+The local `env/`, `db.sqlite3`, `__pycache__/`, and compiled Python files are intentionally excluded from Git.
 
 ## Python version
 
@@ -132,10 +164,22 @@ Create the required virtual environment:
 py -3.12 -m venv env
 ```
 
-Activate the virtual environment:
+Activate the virtual environment in Windows PowerShell:
 
 ```powershell
 .\env\Scripts\Activate.ps1
+```
+
+For Command Prompt:
+
+```text
+env\Scripts\activate.bat
+```
+
+For macOS or Linux:
+
+```bash
+source env/bin/activate
 ```
 
 Install the dependencies:
@@ -154,6 +198,12 @@ Check the Django configuration:
 
 ```powershell
 python manage.py check
+```
+
+Run the complete test suite:
+
+```powershell
+python manage.py test
 ```
 
 Start the development server:
@@ -184,11 +234,25 @@ Run the Week 8 demonstration:
 python demo_week8.py
 ```
 
-## Run the pure-Python tests
+## Run only the pure-Python tests
+
+The following command runs the domain-engine tests stored in the top-level `tests` directory:
 
 ```powershell
 python -m unittest discover -s tests -v
 ```
+
+The current project contains 56 pure-Python tests.
+
+## Run the complete test suite
+
+The following command runs the pure-Python tests and the Django tests together:
+
+```powershell
+python manage.py test
+```
+
+The current project contains 60 tests.
 
 ## Estimated-time formulas
 
@@ -198,8 +262,7 @@ I calculate the estimated time by dividing the distance in kilometres by the hik
 
 ### BackpackingRoute
 
-I calculate the estimated time by dividing the distance in kilometres by the backpacking pace, adding one hour for every 500 metres of elevation gain, 
-and adding 30 minutes for each overnight stop.
+I calculate the estimated time by dividing the distance in kilometres by the backpacking pace, adding one hour for every 500 metres of elevation gain, and adding 30 minutes for each overnight stop.
 
 ### TrailRun
 
@@ -211,7 +274,7 @@ I use the normal `DayHike` estimate and add 30 minutes for a safety briefing.
 
 ## Mixed-unit policy
 
-When arithmetic or comparisons involve kilometres and miles, I convert the right-hand `Distance` into the left-hand object’s unit.
+When arithmetic or comparisons involve kilometres and miles, I convert the right-hand `Distance` into the left-hand object's unit.
 
 Examples:
 
@@ -221,6 +284,50 @@ Examples:
 - Subtraction raises `ValueError` when it would produce a negative distance.
 
 The itinerary follows the same principle by converting every trail into the requested total-distance unit before adding the magnitudes.
+
+## Troubleshooting
+
+### PowerShell blocks virtual-environment activation
+
+Run this command for the current terminal session:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
+Then activate the environment again:
+
+```powershell
+.\env\Scripts\Activate.ps1
+```
+
+### `django-admin` or Django is unavailable
+
+Confirm that the virtual environment is active. The terminal prompt should begin with:
+
+```text
+(env)
+```
+
+Then reinstall the requirements if necessary:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+### `TemplateDoesNotExist`
+
+Confirm that the project-level template directory is configured in `waypoint/settings.py` and that the required file exists inside `templates/`.
+
+### A POST request returns `403 Forbidden`
+
+Confirm that the form contains:
+
+```django
+{% csrf_token %}
+```
+
+Django rejects a POST request without a valid CSRF token to protect the application from cross-site request-forgery attacks.
 
 ## AI-assistance disclosure
 
