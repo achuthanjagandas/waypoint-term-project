@@ -6,7 +6,7 @@ I began the project as a pure-Python object-oriented domain engine and am develo
 
 ## Current development stage
 
-Week 11 shared templates and data-driven trail catalog.
+Week 12 database-backed trails, migrations, Django admin, and ORM catalog queries.
 
 ## Domain-engine features
 
@@ -48,7 +48,10 @@ The project currently includes:
 - Project-level static files
 - Django forms
 - Named URL routes
-- Automated Django tests
+- Automated pure-Python and Django tests
+- A registered Django app named `trails`
+- A committed database migration
+- Django admin configuration
 
 ## Week 10 web features
 
@@ -76,24 +79,60 @@ The Week 11 work includes:
 - A reusable navbar partial
 - A reusable footer partial
 - Existing pages refactored to extend the shared base template
-- A catalog route at `/catalog/`
-- Six trail dictionaries rendered through a Django template loop
+- A catalog page rendered through a Django template loop
+- Six temporary trail dictionaries
 - Automatic row numbering with `forloop.counter`
 - Conditional `CLOSED`, `HARD`, and difficulty badges
 - Distance formatting with the `floatformat:1` template filter
-- A shared Catalog link across the homepage, search page, report page, confirmation page, and catalog
+- Shared navigation across the homepage, catalog, search page, report page, and confirmation page
 - Django tests for catalog content, formatting, badges, numbering, and shared navigation
 
-The Week 11 catalog currently uses trail dictionaries supplied by the view. In Week 12, these temporary records will be replaced by Django model instances stored in the database.
+The temporary Week 11 dictionaries were replaced by database-backed model records during Week 12.
+
+## Week 12 ORM and admin features
+
+I replaced the temporary Week 11 catalog dictionaries with database-backed Django model records.
+
+The Week 12 work includes:
+
+- A registered Django app named `trails`
+- A database-backed `Trail` model
+- A `DecimalField` for trail distance
+- An integer field for elevation gain
+- Difficulty choices for Easy, Moderate, and Expert
+- An `is_open` availability field
+- An automatically generated `added` timestamp
+- Minimum-value validators for distance and elevation gain
+- A readable `__str__()` representation
+- A committed initial migration
+- Django admin registration
+- Admin list columns
+- Trail-name searching in Django admin
+- Admin filters for difficulty and availability
+- Alphabetical admin ordering
+- App-level URLs mounted under `/trails/`
+- An ORM query that returns only open trails
+- Database records ordered by distance
+- Reuse of the Week 11 catalog template with Django model instances
+- Automated model, routing, query, formatting, catalog, and navigation tests
+
+The public catalog uses this ORM query:
+
+```python
+Trail.objects.filter(is_open=True).order_by("distance_km")
+```
+
+Closed trails remain manageable through Django admin but are excluded from the public catalog.
 
 ## Website routes
 
 - `/` displays the Waypoint homepage.
-- `/catalog/` displays the temporary data-driven trail catalog.
+- `/trails/` displays open database trails ordered by distance.
 - `/report/` displays and processes the trail-report form.
 - `/search/` displays the trail search page.
-- `/search/?q=Lake` searches for matching trail names.
+- `/search/?q=Lake` searches the temporary trail-name data.
 - `/admin/` displays the Django administration login page.
+- `/admin/trails/trail/` allows an administrator to manage trail records.
 
 ## Project structure
 
@@ -118,6 +157,17 @@ waypoint-term-project/
 │   ├── test_itinerary.py
 │   ├── test_trail.py
 │   └── test_week8_mixins.py
+├── trails/
+│   ├── migrations/
+│   │   ├── __init__.py
+│   │   └── 0001_initial.py
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
 ├── waypoint/
 │   ├── __init__.py
 │   ├── asgi.py
@@ -188,16 +238,29 @@ Install the dependencies:
 python -m pip install -r requirements.txt
 ```
 
+Check the Django configuration:
+
+```powershell
+python manage.py check
+```
+
 Apply the Django migrations:
 
 ```powershell
 python manage.py migrate
 ```
 
-Check the Django configuration:
+Confirm the `trails` migration:
 
 ```powershell
-python manage.py check
+python manage.py showmigrations trails
+```
+
+Expected migration status:
+
+```text
+trails
+ [X] 0001_initial
 ```
 
 Run the complete test suite:
@@ -212,13 +275,45 @@ Start the development server:
 python manage.py runserver
 ```
 
-Open this address in a browser:
+Open the homepage:
 
 ```text
 http://127.0.0.1:8000/
 ```
 
+Open the public trail catalog:
+
+```text
+http://127.0.0.1:8000/trails/
+```
+
 Stop the server by pressing `Ctrl + C` in the terminal.
+
+A fresh clone contains the database schema after migration but does not contain the trail records created in another local database. Trail records can be added through Django admin after creating a local superuser.
+
+## Create a local administrator account
+
+Create a superuser:
+
+```powershell
+python manage.py createsuperuser
+```
+
+Django will request a username, email address, and password.
+
+Start the server:
+
+```powershell
+python manage.py runserver
+```
+
+Open Django admin:
+
+```text
+http://127.0.0.1:8000/admin/
+```
+
+The superuser and trail records are stored only in the local `db.sqlite3` database, which is excluded from Git.
 
 ## Run the demonstrations
 
@@ -252,7 +347,23 @@ The following command runs the pure-Python tests and the Django tests together:
 python manage.py test
 ```
 
-The current project contains 60 tests.
+The current project contains 63 tests.
+
+Django creates a temporary test database while running the Django tests and destroys it when the tests finish.
+
+## Trail catalog behaviour
+
+The public trail catalog:
+
+- Uses records stored in the database
+- Displays only trails where `is_open=True`
+- Orders visible trails from shortest to longest
+- Formats distance values to one decimal place
+- Displays `HARD` for open expert trails
+- Uses the shared Week 11 catalog template
+- Updates automatically when trail records are changed in Django admin
+
+Closed trails do not appear on the public catalog.
 
 ## Estimated-time formulas
 
@@ -319,6 +430,28 @@ python -m pip install -r requirements.txt
 
 Confirm that the project-level template directory is configured in `waypoint/settings.py` and that the required file exists inside `templates/`.
 
+### The trail catalog is empty after a fresh clone
+
+This is expected because `db.sqlite3` is not committed.
+
+Apply the migrations:
+
+```powershell
+python manage.py migrate
+```
+
+Create a superuser:
+
+```powershell
+python manage.py createsuperuser
+```
+
+Then add trail records through:
+
+```text
+http://127.0.0.1:8000/admin/trails/trail/
+```
+
 ### A POST request returns `403 Forbidden`
 
 Confirm that the form contains:
@@ -331,5 +464,5 @@ Django rejects a POST request without a valid CSRF token to protect the applicat
 
 ## AI-assistance disclosure
 
-I used substantial AI assistance for project planning, implementation guidance, code explanations, test design, documentation, and error troubleshooting. 
+I used substantial AI assistance for project planning, implementation guidance, code explanations, test design, documentation, and error troubleshooting.
 I personally ran and verified all commands and tests recorded as completed.
