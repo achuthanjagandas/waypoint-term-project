@@ -2,390 +2,678 @@
 
 Waypoint is my individual term project for CCGC-5003 Application Programming.
 
-I began the project as a pure-Python object-oriented domain engine and am developing it into a Django trail-finder website.
+I began the project as a pure-Python object-oriented trail-planning domain engine and progressively developed it into a Django 4.2 trail-finder website.
 
-## Current development stage
+The completed project includes object-oriented Python classes, operator overloading, inheritance, polymorphism, mixins, Django templates and forms, database-backed Trail and Park models, ForeignKey relationships, Django administration, trail filtering, a Trail detail page, automated tests, and a documented clone-and-run workflow.
 
-Week 13 Park-to-Trail relationships, ForeignKey migrations, protected deletion, and relationship-based catalog filtering.
+---
 
-## Domain-engine features
+## Project status
 
-The current domain engine includes:
+Waypoint has been developed through Weeks 7–14 of the term project.
 
+The completed project includes:
+
+- A pure-Python object-oriented domain engine
 - A validated `Distance` value type
+- Trail inheritance and polymorphism
+- Mixins and Method Resolution Order demonstrations
+- A validated `Itinerary`
+- Django 4.2
+- Shared Django templates and static CSS
+- A homepage
+- A trail-report form with CSRF protection
+- Safe trail searching
+- A database-backed trail catalog
+- Django `Trail` and `Park` models
+- A required ForeignKey relationship from Trail to Park
+- Django administration
+- Park-based catalog filtering
+- A database-backed Trail detail page
+- HTTP 404 handling for missing Trails
+- Automated Django and pure-Python tests
+- Migration files that apply from a clean database
+
+---
+
+## Technology
+
+I developed and verified the project with:
+
+- Python 3.12
+- Django 4.2.30
+- SQLite for local development
+- HTML
+- CSS
+- Git
+- GitHub
+- Windows PowerShell
+
+Python 3.12 is used because it is compatible with the required Django 4.2 release.
+
+---
+
+# Main features
+
+## Pure-Python domain engine
+
+The `waypoint_core` package contains the object-oriented Python portion of Waypoint.
+
+It includes:
+
+- A validated `Distance` class
 - Kilometre and mile conversion
-- Read-only distance accessors
+- Read-only distance properties
 - Distance addition and subtraction
-- Distance equality and ordering
-- Distance sorting
-- Readable `str` and developer-focused `repr`
+- Distance comparison and sorting
+- Mixed-unit arithmetic and comparisons
 - An abstract `Trail` base class
 - Abstract `estimated_time()` and `summary()` methods
-- `DayHike`, `BackpackingRoute`, and `TrailRun`
-- A further subclass named `GuidedDayHike`
-- Method overriding and `super()`
-- `ElevationMixin` and `RatingMixin`
-- A Method Resolution Order demonstration
-- A polymorphic estimated-time loop
+- `DayHike`
+- `BackpackingRoute`
+- `TrailRun`
+- `GuidedDayHike`
+- Method overriding
+- `super()`
+- `ElevationMixin`
+- `RatingMixin`
+- Method Resolution Order demonstrations
+- Polymorphism
 - A duck-typed `FakeTrail`
 - A validated `Itinerary`
 - Independent itinerary trail collections
-- Total-distance calculation
+- Total-distance calculations
 
-## Django setup
+---
 
-The project currently includes:
+## Django web application
 
-- Python 3.12
-- A virtual environment named `env`
-- Django 4.2.30
-- A `requirements.txt` dependency file
-- The Django project package named `waypoint`
-- The Django management script `manage.py`
-- SQLite for local development
-- The existing importable `waypoint_core` package
-- Project-level templates
-- Project-level static files
-- Django forms
-- Named URL routes
-- Automated pure-Python and Django tests
-- A registered Django app named `trails`
-- A database-backed `Park` model
-- A database-backed `Trail` model
-- A required Park-to-Trail ForeignKey
-- Three committed Trail-app migrations
-- Django admin configuration for Parks and Trails
+The Django portion of Waypoint includes:
 
-## Week 10 web features
-
-I added the following Django web features:
-
-- A styled Waypoint homepage
-- Shared project-level templates and static CSS
-- Context variables rendered in the homepage template
+- A styled homepage
+- Shared project-level templates
+- Shared static CSS
+- Template inheritance
+- Reusable navbar and footer partials
 - Named URL routes
 - A Django trail-report form
-- Required-field and email validation
+- Required-field validation
+- Email validation
 - CSRF protection
-- A personalized report-confirmation page
-- A trail-name search view
-- Safe handling when the `q` query parameter is missing
-- Search results and no-results messages
+- Personalized report confirmation
+- Safe search-query handling
+- A database-backed trail catalog
+- Park filtering
+- Trail detail pages
+- HTTP 404 handling for missing Trail IDs
+- Django administration
 
-## Week 11 template and catalog features
+---
 
-I added a shared Django template layout and a data-driven trail catalog.
+# Database models
 
-The Week 11 work includes:
+Waypoint contains two related Django database models.
 
-- A shared `base.html` template
-- A reusable navbar partial
-- A reusable footer partial
-- Existing pages refactored to extend the shared base template
-- A catalog page rendered through a Django template loop
-- Six temporary trail dictionaries
-- Automatic row numbering with `forloop.counter`
-- Conditional `CLOSED`, `HARD`, and difficulty badges
-- Distance formatting with the `floatformat:1` template filter
-- Shared navigation across the homepage, catalog, search page, report page, and confirmation page
-- Django tests for catalog content, formatting, badges, numbering, and shared navigation
+## Park
 
-The temporary Week 11 dictionaries were replaced by database-backed model records during Week 12.
+A Park contains:
 
-## Week 12 ORM and admin features
+- `name`
+- `region`
 
-I replaced the temporary Week 11 catalog dictionaries with database-backed Django model records.
+Example:
 
-The Week 12 work includes:
-
-- A registered Django app named `trails`
-- A database-backed `Trail` model
-- A `DecimalField` for trail distance
-- An integer field for elevation gain
-- Difficulty choices for Easy, Moderate, and Expert
-- An `is_open` availability field
-- An automatically generated `added` timestamp
-- Minimum-value validators for distance and elevation gain
-- A readable Trail `__str__()` representation
-- A committed initial migration
-- Django admin registration
-- Admin list columns
-- Trail-name searching in Django admin
-- Difficulty and availability filters
-- Alphabetical admin ordering
-- App-level URLs mounted under `/trails/`
-- An ORM query that returns only open Trails
-- Database records ordered by distance
-- Reuse of the shared catalog template with Django model instances
-- Automated model, routing, query, formatting, catalog, and navigation tests
-
-The public catalog begins with this ORM query:
-
-```python
-Trail.objects.filter(is_open=True).order_by("distance_km")
+```text
+Cedar Lake Park (Central Ontario)
 ```
 
-Closed Trails remain manageable through Django admin but are excluded from the public catalog.
+## Trail
 
-## Week 13 relationship and ForeignKey features
+A Trail contains:
 
-I added a database-backed `Park` model and connected every `Trail` to a Park through a required Django `ForeignKey`.
+- `name`
+- `park`
+- `distance_km`
+- `elevation_gain`
+- `difficulty`
+- `is_open`
+- `added`
 
-The Week 13 work includes:
+Difficulty choices are:
 
-- A `Park` model with `name` and `region` fields
-- Alphabetical Park ordering
-- A readable Park `__str__()` representation
-- A required `ForeignKey` from `Trail` to `Park`
-- A reverse relationship through `park.trails`
-- Protected Park deletion through `on_delete=models.PROTECT`
-- Park administration with list columns and search
-- Park information in the Trail administration list
-- Trail searching through related Park fields
-- Park, difficulty, and availability filters in Django admin
-- Three Park records assigned across all six local Trail records
-- Park names and regions displayed in the public catalog
-- A public Park-selection dropdown
-- Cross-relation filtering of open Trails by Park
-- Safe handling of invalid Park query-string values
-- Automated Park model, reverse-relationship, protected-deletion, required-relationship, display, and filtering tests
+- Easy
+- Moderate
+- Expert
 
-The relationship is defined with:
+Every Trail is required to belong to a Park.
 
-```python
-park = models.ForeignKey(
-    Park,
-    on_delete=models.PROTECT,
-    related_name="trails",
-)
-```
+---
 
-The reverse relationship allows a Park to retrieve its Trails with:
+## Trail-to-Park relationship
 
-```python
-park.trails.all()
-```
+The Django `Trail` model contains a ForeignKey to `Park`.
 
-The catalog retrieves each Trail and its related Park efficiently with:
-
-```python
-Trail.objects.filter(is_open=True).select_related("park")
-```
-
-When a Park is selected, the catalog applies:
-
-```python
-trails.filter(park=selected_park)
-```
-
-### Existing-row migration strategy
-
-I introduced the relationship in two database migrations so that the six existing Trail records were preserved.
-
-First, migration `0002_park_trail_park.py`:
-
-- Created the `Park` table
-- Added a temporarily nullable `park` field to `Trail`
-- Preserved all six existing Trail records
-
-I then:
-
-- Created three real Park records
-- Assigned a Park to every existing Trail
-- Verified that zero Trails had a missing Park
-
-Finally, migration `0003_alter_trail_park.py` removed the temporary nullable setting and made the relationship mandatory.
-
-I did not provide a fake default Park because every existing Trail was deliberately assigned to a real Park before the required database constraint was applied.
-
-### Protected deletion policy
-
-I use:
+The relationship uses:
 
 ```python
 on_delete=models.PROTECT
 ```
 
-This prevents an administrator from deleting a Park while Trail records still reference it.
+I chose `PROTECT` deliberately because a Park should not be deleted while Trail records still depend on it.
 
-The related Trails must first be reassigned or removed. This protects the relationship and prevents Trails from pointing to a Park that no longer exists.
+This prevents accidental loss of a Park that is being referenced by existing Trails.
 
-## Website routes
+The relationship also uses:
 
-- `/` displays the Waypoint homepage.
-- `/trails/` displays all open database Trails ordered by distance.
-- `/trails/?park=<park-id>` displays open Trails belonging to the selected Park.
-- `/report/` displays and processes the trail-report form.
-- `/search/` displays the trail search page.
-- `/search/?q=Lake` searches the temporary trail-name data.
-- `/admin/` displays the Django administration login page.
-- `/admin/trails/park/` allows an administrator to manage Park records.
-- `/admin/trails/trail/` allows an administrator to manage Trail records and assign Parks.
+```python
+related_name="trails"
+```
 
-## Project structure
+This allows reverse queries such as:
+
+```python
+park.trails.all()
+```
+
+The final relationship is non-nullable, so every saved Trail must have a Park.
+
+---
+
+# Important Trail class distinction
+
+Waypoint contains two classes named `Trail`, but they have different purposes.
+
+## `waypoint_core.Trail`
+
+This is the pure-Python abstract domain class used for the object-oriented programming portion of the project.
+
+It demonstrates concepts such as:
+
+- Abstraction
+- Inheritance
+- Polymorphism
+- Method overriding
+- Operator-related domain behavior
+
+## `trails.models.Trail`
+
+This is the Django ORM database model used by the web application.
+
+It represents Trail records stored in the SQLite database.
+
+Keeping these responsibilities separate lets the project preserve the earlier object-oriented domain engine while also using Django models for persistence.
+
+---
+
+# Database migrations
+
+The `trails` application currently contains these migrations:
+
+```text
+0001_initial.py
+0002_park_trail_park.py
+0003_alter_trail_park.py
+```
+
+## `0001_initial.py`
+
+Creates the initial database-backed `Trail` model.
+
+## `0002_park_trail_park.py`
+
+Creates the `Park` model and introduces the Trail-to-Park ForeignKey in a migration-safe way.
+
+The relationship was initially allowed to be nullable so existing Trail rows could be assigned to Parks before making the relationship mandatory.
+
+## `0003_alter_trail_park.py`
+
+Makes the Trail-to-Park ForeignKey non-nullable after existing Trail records have been assigned to valid Parks.
+
+This provides a safe migration path while also enforcing the final rule that every Trail belongs to a Park.
+
+---
+
+# Django administration
+
+Both `Park` and `Trail` are available through Django admin.
+
+The Trail administration page provides information such as:
+
+- Trail name
+- Park
+- Distance
+- Elevation gain
+- Difficulty
+- Open/closed status
+- Date added
+
+Trail records can also be filtered by:
+
+- Park
+- Difficulty
+- Open/closed status
+
+The Park administration page displays Park names and regions.
+
+Because the Trail ForeignKey uses `PROTECT`, Django prevents an administrator from deleting a Park that still has related Trails.
+
+---
+
+# Trail catalog
+
+The database-backed catalog is available at:
+
+```text
+/trails/
+```
+
+The catalog:
+
+- Reads Trail records using the Django ORM
+- Displays only open Trails
+- Orders open Trails by distance
+- Displays the related Park for each Trail
+- Displays the Park region
+- Formats distance values for display
+- Uses difficulty/status badges
+- Uses automatic template row numbering
+- Allows filtering open Trails by Park
+- Links each Trail name to its detail page
+
+Closed Trails remain stored in the database and visible to administrators but are not displayed in the public catalog.
+
+---
+
+# Trail detail page
+
+Each public Trail has a detail page using its database ID.
+
+Example:
+
+```text
+/trails/1/
+```
+
+The detail page displays:
+
+- Trail name
+- Park
+- Region
+- Distance
+- Elevation gain
+- Difficulty
+- Availability
+
+If the requested database ID does not exist, the view returns HTTP:
+
+```text
+404 Not Found
+```
+
+For example:
+
+```text
+/trails/999999/
+```
+
+returns a 404 response instead of causing a server error.
+
+---
+
+# Website routes
+
+The main website routes include:
+
+| Route | Purpose |
+| --- | --- |
+| `/` | Waypoint homepage |
+| `/trails/` | Database-backed Trail catalog |
+| `/trails/<id>/` | Individual Trail detail page |
+| `/search/` | Trail search |
+| `/report/` | Trail-report form |
+| `/admin/` | Django administration |
+
+Example Trail detail route:
+
+```text
+http://127.0.0.1:8000/trails/1/
+```
+
+---
+
+# Project structure
 
 ```text
 waypoint-term-project/
-├── static/
-│   └── style.css
-├── templates/
-│   ├── partials/
-│   │   ├── footer.html
-│   │   └── navbar.html
-│   ├── base.html
-│   ├── catalog.html
-│   ├── home.html
-│   ├── report_form.html
-│   ├── report_thanks.html
-│   └── search.html
-├── tests/
-│   ├── __init__.py
-│   ├── test_distance.py
-│   ├── test_distance_operators.py
-│   ├── test_itinerary.py
-│   ├── test_trail.py
-│   └── test_week8_mixins.py
-├── trails/
-│   ├── migrations/
-│   │   ├── __init__.py
-│   │   ├── 0001_initial.py
-│   │   ├── 0002_park_trail_park.py
-│   │   └── 0003_alter_trail_park.py
-│   ├── __init__.py
-│   ├── admin.py
-│   ├── apps.py
-│   ├── models.py
-│   ├── tests.py
-│   ├── urls.py
-│   └── views.py
-├── waypoint/
-│   ├── __init__.py
-│   ├── asgi.py
-│   ├── forms.py
-│   ├── settings.py
-│   ├── tests.py
-│   ├── urls.py
-│   ├── views.py
-│   └── wsgi.py
-├── waypoint_core/
-│   ├── __init__.py
-│   ├── distance.py
-│   ├── guided.py
-│   ├── itinerary.py
-│   ├── mixins.py
-│   ├── polymorphism.py
-│   └── trail.py
-├── demo_week7.py
-├── demo_week8.py
-├── manage.py
-├── requirements.txt
-├── .gitignore
-└── README.md
+|
+|-- docs/
+|   `-- screenshots/
+|       |-- admin.png
+|       `-- catalog.png
+|
+|-- static/
+|   `-- style.css
+|
+|-- templates/
+|   |-- partials/
+|   |   |-- footer.html
+|   |   `-- navbar.html
+|   |-- base.html
+|   |-- catalog.html
+|   |-- home.html
+|   |-- report_form.html
+|   |-- report_thanks.html
+|   |-- search.html
+|   `-- trail_detail.html
+|
+|-- tests/
+|   |-- __init__.py
+|   |-- test_distance.py
+|   |-- test_distance_operators.py
+|   |-- test_itinerary.py
+|   |-- test_trail.py
+|   `-- test_week8_mixins.py
+|
+|-- trails/
+|   |-- migrations/
+|   |   |-- __init__.py
+|   |   |-- 0001_initial.py
+|   |   |-- 0002_park_trail_park.py
+|   |   `-- 0003_alter_trail_park.py
+|   |-- __init__.py
+|   |-- admin.py
+|   |-- apps.py
+|   |-- models.py
+|   |-- tests.py
+|   |-- urls.py
+|   `-- views.py
+|
+|-- waypoint/
+|   |-- __init__.py
+|   |-- asgi.py
+|   |-- forms.py
+|   |-- settings.py
+|   |-- tests.py
+|   |-- urls.py
+|   |-- views.py
+|   `-- wsgi.py
+|
+|-- waypoint_core/
+|   |-- __init__.py
+|   |-- distance.py
+|   |-- guided.py
+|   |-- itinerary.py
+|   |-- mixins.py
+|   |-- polymorphism.py
+|   `-- trail.py
+|
+|-- .gitignore
+|-- demo_week7.py
+|-- demo_week8.py
+|-- manage.py
+|-- README.md
+`-- requirements.txt
 ```
 
-The local `env/`, `db.sqlite3`, `__pycache__/`, compiled Python files, administrator accounts, and locally created Park and Trail records are intentionally excluded from Git.
+The following local-development files and folders are intentionally not committed:
 
-## Python version
+```text
+env/
+db.sqlite3
+__pycache__/
+```
 
-I use Python 3.12 because it is compatible with the required Django 4.2 release.
+---
 
-## Setup from a fresh clone
+# Setup from a fresh clone
 
-Clone the repository and enter the project folder:
+These instructions are written for Windows PowerShell.
+
+A grader can use the following steps to clone the repository, create an isolated Python environment, install the project, build the database, run the tests, and start Waypoint.
+
+## 1. Clone the repository
+
+Open PowerShell and move to the folder where the project should be stored.
+
+Run:
 
 ```powershell
 git clone https://github.com/achuthanjagandas/waypoint-term-project.git
+```
+
+Enter the cloned repository:
+
+```powershell
 Set-Location waypoint-term-project
 ```
 
-Create the required virtual environment:
+---
+
+## 2. Create the virtual environment
+
+Run:
 
 ```powershell
 py -3.12 -m venv env
 ```
 
-Activate the virtual environment in Windows PowerShell:
+This creates the required virtual environment named:
+
+```text
+env
+```
+
+---
+
+## 3. Activate the virtual environment
+
+Run:
 
 ```powershell
 .\env\Scripts\Activate.ps1
 ```
 
-For Command Prompt:
+After activation, PowerShell should show:
 
 ```text
-env\Scripts\activate.bat
+(env)
 ```
 
-For macOS or Linux:
+before the command prompt.
 
-```bash
-source env/bin/activate
+### PowerShell execution-policy troubleshooting
+
+If PowerShell reports that `Activate.ps1` cannot be loaded because script execution is disabled, run:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ```
 
-Install the dependencies:
+Then activate the environment again:
+
+```powershell
+.\env\Scripts\Activate.ps1
+```
+
+The `Process` scope applies only to the current PowerShell session.
+
+---
+
+## 4. Install the dependencies
+
+With `(env)` visible in the terminal, run:
 
 ```powershell
 python -m pip install -r requirements.txt
 ```
 
-Check the Django configuration:
+Verify Django:
 
 ```powershell
-python manage.py check
+python -m django --version
 ```
 
-Apply the Django migrations:
+The project was developed with Django:
+
+```text
+4.2.30
+```
+
+---
+
+## 5. Verify the pure-Python package
+
+Run:
+
+```powershell
+python -c "import waypoint_core; print('waypoint_core import OK')"
+```
+
+Expected output:
+
+```text
+waypoint_core import OK
+```
+
+---
+
+## 6. Apply the database migrations
+
+Run:
 
 ```powershell
 python manage.py migrate
 ```
 
-Confirm the Trail-app migrations:
+This creates the local SQLite database and applies the Django and Waypoint migration history.
+
+Verify the Trail migrations with:
 
 ```powershell
 python manage.py showmigrations trails
 ```
 
-Expected migration status:
+Expected Trail migrations:
 
 ```text
-trails
- [X] 0001_initial
- [X] 0002_park_trail_park
- [X] 0003_alter_trail_park
+[X] 0001_initial
+[X] 0002_park_trail_park
+[X] 0003_alter_trail_park
 ```
 
-Run the complete test suite:
+---
+
+## 7. Check the Django configuration
+
+Run:
+
+```powershell
+python manage.py check
+```
+
+Expected output:
+
+```text
+System check identified no issues (0 silenced).
+```
+
+---
+
+## 8. Run the automated tests
+
+Run the complete project test suite:
 
 ```powershell
 python manage.py test
 ```
 
-Start the development server:
+The latest local Week 14 verification completed:
+
+```text
+72 tests
+OK
+```
+
+The pure-Python tests can also be run independently:
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+The latest independent pure-Python verification completed:
+
+```text
+56 tests
+OK
+```
+
+---
+
+## 9. Start the development server
+
+Run:
 
 ```powershell
 python manage.py runserver
 ```
 
-Open the homepage:
+When the server starts successfully, open:
 
 ```text
 http://127.0.0.1:8000/
 ```
 
-Open the public trail catalog:
+The Trail catalog is available at:
 
 ```text
 http://127.0.0.1:8000/trails/
 ```
 
-Stop the server by pressing `Ctrl + C` in the terminal.
+Stop the server with:
 
-A fresh clone contains the recreated database structure after migrations, but it does not contain the administrator account, Parks, or Trails created in another local database.
+```text
+Ctrl + C
+```
 
-The empty public catalog is therefore expected after a fresh clone.
+---
 
-## Create a local administrator account
+# Creating a Django administrator
+
+A fresh clone does not contain my local administrator account because `db.sqlite3` is intentionally excluded from Git.
+
+To create a local administrator, run:
+
+```powershell
+python manage.py createsuperuser
+```
+
+Follow the prompts to create:
+
+- Username
+- Email address, if desired
+- Password
+
+Then start the server:
+
+```powershell
+python manage.py runserver
+```
+
+Open:
+
+```text
+http://127.0.0.1:8000/admin/
+```
+
+Log in using the superuser account that was just created.
+
+---
+
+# Adding Trail and Park data
+
+Because the SQLite development database is intentionally not committed, a fresh clone begins with an empty Waypoint database after migrations.
+
+A grader can create sample data through Django admin.
 
 Create a superuser:
 
@@ -393,45 +681,151 @@ Create a superuser:
 python manage.py createsuperuser
 ```
 
-Django will request a username, email address, and password.
-
 Start the server:
 
 ```powershell
 python manage.py runserver
 ```
 
-Open Django admin:
+Open:
 
 ```text
 http://127.0.0.1:8000/admin/
 ```
 
-The superuser is stored only in the local `db.sqlite3` database.
+Create one or more Parks first.
 
-## Add local Park and Trail records
-
-Because every Trail requires a Park, create Park records before creating Trail records.
-
-Open:
+Example:
 
 ```text
-http://127.0.0.1:8000/admin/trails/park/
+Name: Cedar Lake Park
+Region: Central Ontario
 ```
 
-Create the required Parks.
+Then create Trails and assign each Trail to a Park.
 
-Then open:
+Example:
 
 ```text
-http://127.0.0.1:8000/admin/trails/trail/
+Name: Lake View Trail
+Park: Cedar Lake Park
+Distance km: 5.25
+Elevation gain: 120
+Difficulty: Easy
+Is open: Yes
 ```
 
-Create Trail records and assign one Park to every Trail.
+Open Trails will appear in the public Trail catalog.
 
-Local Park and Trail data is stored inside `db.sqlite3`, which is excluded from Git.
+---
 
-## Run the demonstrations
+# Report form and CSRF protection
+
+The report form is available at:
+
+```text
+/report/
+```
+
+The form uses Django's CSRF protection:
+
+```django
+{% csrf_token %}
+```
+
+A valid form submission displays a personalized thank-you page.
+
+Django rejects a POST request without a valid CSRF token to protect the application from cross-site request-forgery attacks.
+
+---
+
+# Search behavior
+
+The search view safely reads the query parameter with:
+
+```python
+request.GET.get("q", "")
+```
+
+Therefore:
+
+```text
+/search/
+```
+
+works even when no `q` parameter is supplied.
+
+Example:
+
+```text
+/search/?q=lake
+```
+
+---
+
+# Estimated-time formulas
+
+The pure-Python Trail subclasses use intentionally simple formulas so their behavior can be explained clearly.
+
+## DayHike
+
+I calculate estimated time using the hiking pace and add additional time for elevation gain.
+
+The elevation adjustment adds approximately one hour for every 600 metres of elevation gain.
+
+---
+
+## BackpackingRoute
+
+I calculate estimated time using the backpacking pace.
+
+I add approximately one hour for every 500 metres of elevation gain and add 30 minutes for each overnight stop.
+
+---
+
+## TrailRun
+
+I calculate estimated time using the running pace.
+
+I add approximately one hour for every 900 metres of elevation gain.
+
+---
+
+## GuidedDayHike
+
+I use the normal `DayHike` estimate and add 30 minutes for a safety briefing.
+
+---
+
+# Mixed-unit Distance policy
+
+When arithmetic or comparisons involve kilometres and miles, I convert the right-hand `Distance` into the left-hand object's unit.
+
+Examples:
+
+```python
+Distance(5, "km") + Distance(1, "mi")
+```
+
+returns a result measured in kilometres.
+
+```python
+Distance(5, "mi") + Distance(1, "km")
+```
+
+returns a result measured in miles.
+
+Equality and ordering also convert the right-hand value before comparing.
+
+Subtraction raises `ValueError` when the operation would produce a negative distance.
+
+The `Itinerary` follows the same principle when calculating total distance in a requested unit.
+
+---
+
+# Demonstration programs
+
+The original object-oriented project stages include demonstration programs.
 
 Run the Week 7 demonstration:
 
@@ -445,187 +839,184 @@ Run the Week 8 demonstration:
 python demo_week8.py
 ```
 
-## Run only the pure-Python tests
+---
 
-The following command runs the domain-engine tests stored in the top-level `tests` directory:
+# Testing strategy
 
-```powershell
-python -m unittest discover -s tests -v
-```
+Waypoint contains both pure-Python unit tests and Django tests.
 
-The current project contains 56 pure-Python tests.
+The test suite covers areas including:
 
-## Run the complete test suite
+- Distance validation
+- Unit conversion
+- Operator overloading
+- Distance ordering
+- Abstract Trail behavior
+- Estimated-time behavior
+- Mixins
+- MRO
+- Polymorphism
+- Duck typing
+- Itinerary validation
+- Django views
+- Forms
+- Shared templates
+- Catalog rendering
+- Django models
+- Park-to-Trail relationships
+- Protected deletion
+- Required Park relationships
+- Open-Trail database queries
+- Distance ordering in the catalog
+- Park filtering
+- Trail detail rendering
+- Missing-Trail 404 responses
 
-The following command runs the pure-Python tests and the Django tests together:
+The complete suite is run with:
 
 ```powershell
 python manage.py test
 ```
 
-The current project contains 70 tests.
+---
 
-Django creates a temporary test database while running the Django tests and destroys it when the tests finish.
+# Screenshots
 
-## Trail catalog behaviour
+The final project includes screenshots of the public Trail catalog and Django administration interface.
 
-The public trail catalog:
+## Public Trail catalog
 
-- Uses Trail records stored in the database
-- Displays only Trails where `is_open=True`
-- Orders visible Trails from shortest to longest
-- Retrieves related Park information with `select_related("park")`
-- Displays each Trail’s Park name and region
-- Allows the user to filter open Trails by Park
-- Safely ignores invalid Park query-string values
-- Formats distance values to one decimal place
-- Displays `HARD` for open expert Trails
-- Uses the shared catalog template
-- Updates automatically when Trail or Park relationships are changed in Django admin
+![Waypoint Trail catalog](docs/screenshots/catalog.png)
 
-Closed Trails do not appear in the public catalog.
+## Django administration
 
-Filtering by Greenwood Forest Park displays:
+![Waypoint Django administration](docs/screenshots/admin.png)
 
-- Forest Ridge
-- Pine Valley Route
+---
 
-## Park and Trail relationship behaviour
+# Clean-clone verification checklist
 
-Each Trail must reference one Park.
+For final verification, I use a new folder and perform the project setup without relying on my existing virtual environment or SQLite database.
 
-A Park may contain multiple Trails through:
-
-```python
-park.trails.all()
-```
-
-Django admin allows an administrator to:
-
-- Create Parks
-- Search Parks by name or region
-- Assign a Park to each Trail
-- Search Trails by Trail name, Park name, or Park region
-- Filter Trails by Park, difficulty, or availability
-
-Django prevents deletion of a Park while Trails still reference it.
-
-## Estimated-time formulas
-
-### DayHike
-
-I calculate the estimated time by dividing the distance in kilometres by the hiking pace and adding one hour for every 600 metres of elevation gain.
-
-### BackpackingRoute
-
-I calculate the estimated time by dividing the distance in kilometres by the backpacking pace, adding one hour for every 500 metres of elevation gain, and adding 30 minutes for each overnight stop.
-
-### TrailRun
-
-I calculate the estimated time by dividing the distance in kilometres by the running pace and adding one hour for every 900 metres of elevation gain.
-
-### GuidedDayHike
-
-I use the normal `DayHike` estimate and add 30 minutes for a safety briefing.
-
-## Mixed-unit policy
-
-When arithmetic or comparisons involve kilometres and miles, I convert the right-hand `Distance` into the left-hand object's unit.
-
-Examples:
-
-- `Distance(5, "km") + Distance(1, "mi")` returns kilometres.
-- `Distance(5, "mi") + Distance(1, "km")` returns miles.
-- Equality and ordering convert the right-hand value before comparing.
-- Subtraction raises `ValueError` when it would produce a negative distance.
-
-The itinerary follows the same principle by converting every Trail into the requested total-distance unit before adding the magnitudes.
-
-## Troubleshooting
-
-### PowerShell blocks virtual-environment activation
-
-Run this command for the current terminal session:
+The verification sequence is:
 
 ```powershell
+git clone https://github.com/achuthanjagandas/waypoint-term-project.git
+Set-Location waypoint-term-project
+py -3.12 -m venv env
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-```
-
-Then activate the environment again:
-
-```powershell
 .\env\Scripts\Activate.ps1
-```
-
-### `django-admin` or Django is unavailable
-
-Confirm that the virtual environment is active. The terminal prompt should begin with:
-
-```text
-(env)
-```
-
-Then reinstall the requirements if necessary:
-
-```powershell
 python -m pip install -r requirements.txt
-```
-
-### `TemplateDoesNotExist`
-
-Confirm that the project-level template directory is configured in `waypoint/settings.py` and that the required file exists inside `templates/`.
-
-### The trail catalog is empty after a fresh clone
-
-This is expected because `db.sqlite3` is not committed.
-
-Apply the migrations:
-
-```powershell
 python manage.py migrate
+python manage.py check
+python manage.py test
+python -c "import waypoint_core; print('waypoint_core import OK')"
+python manage.py runserver
 ```
 
-Create a superuser:
+I verify that:
+
+- The repository clones successfully
+- The `env` virtual environment can be created
+- Dependencies install from `requirements.txt`
+- All migrations apply from an empty database
+- `waypoint_core` imports successfully
+- Django reports no system-check issues
+- The automated tests pass
+- The development server starts
+- The homepage loads
+- The public Trail catalog route loads
+- `env/` remains untracked
+- `db.sqlite3` remains untracked
+
+---
+
+# Git workflow
+
+I developed the project using a separate feature branch for each project week.
+
+The milestone branches include:
+
+```text
+week-07-domain-model
+week-08-hierarchy-and-operators
+week-09-django-setup
+week-10-views-urls-forms
+week-11-template-language
+week-12-orm-and-admin
+week-13-relationships-and-foreignkeys
+week-14-hardening-and-handoff
+```
+
+Completed milestone tags include:
+
+```text
+v7
+v8
+v9
+v10
+v11
+v12
+v13
+```
+
+The final Week 14 branch is merged through the final pull request before the final `v1.0` release tag is created.
+
+---
+
+# Final verification commands
+
+Before preparing the final release, I run:
 
 ```powershell
-python manage.py createsuperuser
+python manage.py check
 ```
 
-Create Park records through:
+```powershell
+python manage.py test
+```
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+```powershell
+python manage.py makemigrations --check --dry-run
+```
+
+```powershell
+git diff --check
+```
+
+```powershell
+git status
+```
+
+Expected results include:
 
 ```text
-http://127.0.0.1:8000/admin/trails/park/
+System check identified no issues
 ```
-
-Then create Trail records and assign their Parks through:
 
 ```text
-http://127.0.0.1:8000/admin/trails/trail/
+72 tests
+OK
 ```
 
-### A Trail cannot be created without a Park
-
-This is expected because the Park relationship is required.
-
-Create at least one Park first and select it when creating the Trail.
-
-### A Park cannot be deleted
-
-Django prevents a Park from being deleted when one or more Trails reference it.
-
-Reassign or delete the related Trails before attempting to delete the Park.
-
-### A POST request returns `403 Forbidden`
-
-Confirm that the form contains:
-
-```django
-{% csrf_token %}
+```text
+56 tests
+OK
 ```
 
-Django rejects a POST request without a valid CSRF token to protect the application from cross-site request-forgery attacks.
+```text
+No changes detected
+```
 
-## AI-assistance disclosure
+and a clean Git working tree after all intended files have been committed.
+
+---
+
+# AI-assistance disclosure
 
 I used substantial AI assistance for project planning, implementation guidance, code explanations, test design, documentation, and error troubleshooting.
 I personally ran and verified all commands and tests recorded as completed.
