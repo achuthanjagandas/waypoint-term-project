@@ -6,7 +6,7 @@ I began the project as a pure-Python object-oriented domain engine and am develo
 
 ## Current development stage
 
-Week 12 database-backed trails, migrations, Django admin, and ORM catalog queries.
+Week 13 Park-to-Trail relationships, ForeignKey migrations, protected deletion, and relationship-based catalog filtering.
 
 ## Domain-engine features
 
@@ -50,8 +50,11 @@ The project currently includes:
 - Named URL routes
 - Automated pure-Python and Django tests
 - A registered Django app named `trails`
-- A committed database migration
-- Django admin configuration
+- A database-backed `Park` model
+- A database-backed `Trail` model
+- A required Park-to-Trail ForeignKey
+- Three committed Trail-app migrations
+- Django admin configuration for Parks and Trails
 
 ## Week 10 web features
 
@@ -103,36 +106,121 @@ The Week 12 work includes:
 - An `is_open` availability field
 - An automatically generated `added` timestamp
 - Minimum-value validators for distance and elevation gain
-- A readable `__str__()` representation
+- A readable Trail `__str__()` representation
 - A committed initial migration
 - Django admin registration
 - Admin list columns
 - Trail-name searching in Django admin
-- Admin filters for difficulty and availability
+- Difficulty and availability filters
 - Alphabetical admin ordering
 - App-level URLs mounted under `/trails/`
-- An ORM query that returns only open trails
+- An ORM query that returns only open Trails
 - Database records ordered by distance
-- Reuse of the Week 11 catalog template with Django model instances
+- Reuse of the shared catalog template with Django model instances
 - Automated model, routing, query, formatting, catalog, and navigation tests
 
-The public catalog uses this ORM query:
+The public catalog begins with this ORM query:
 
 ```python
 Trail.objects.filter(is_open=True).order_by("distance_km")
 ```
 
-Closed trails remain manageable through Django admin but are excluded from the public catalog.
+Closed Trails remain manageable through Django admin but are excluded from the public catalog.
+
+## Week 13 relationship and ForeignKey features
+
+I added a database-backed `Park` model and connected every `Trail` to a Park through a required Django `ForeignKey`.
+
+The Week 13 work includes:
+
+- A `Park` model with `name` and `region` fields
+- Alphabetical Park ordering
+- A readable Park `__str__()` representation
+- A required `ForeignKey` from `Trail` to `Park`
+- A reverse relationship through `park.trails`
+- Protected Park deletion through `on_delete=models.PROTECT`
+- Park administration with list columns and search
+- Park information in the Trail administration list
+- Trail searching through related Park fields
+- Park, difficulty, and availability filters in Django admin
+- Three Park records assigned across all six local Trail records
+- Park names and regions displayed in the public catalog
+- A public Park-selection dropdown
+- Cross-relation filtering of open Trails by Park
+- Safe handling of invalid Park query-string values
+- Automated Park model, reverse-relationship, protected-deletion, required-relationship, display, and filtering tests
+
+The relationship is defined with:
+
+```python
+park = models.ForeignKey(
+    Park,
+    on_delete=models.PROTECT,
+    related_name="trails",
+)
+```
+
+The reverse relationship allows a Park to retrieve its Trails with:
+
+```python
+park.trails.all()
+```
+
+The catalog retrieves each Trail and its related Park efficiently with:
+
+```python
+Trail.objects.filter(is_open=True).select_related("park")
+```
+
+When a Park is selected, the catalog applies:
+
+```python
+trails.filter(park=selected_park)
+```
+
+### Existing-row migration strategy
+
+I introduced the relationship in two database migrations so that the six existing Trail records were preserved.
+
+First, migration `0002_park_trail_park.py`:
+
+- Created the `Park` table
+- Added a temporarily nullable `park` field to `Trail`
+- Preserved all six existing Trail records
+
+I then:
+
+- Created three real Park records
+- Assigned a Park to every existing Trail
+- Verified that zero Trails had a missing Park
+
+Finally, migration `0003_alter_trail_park.py` removed the temporary nullable setting and made the relationship mandatory.
+
+I did not provide a fake default Park because every existing Trail was deliberately assigned to a real Park before the required database constraint was applied.
+
+### Protected deletion policy
+
+I use:
+
+```python
+on_delete=models.PROTECT
+```
+
+This prevents an administrator from deleting a Park while Trail records still reference it.
+
+The related Trails must first be reassigned or removed. This protects the relationship and prevents Trails from pointing to a Park that no longer exists.
 
 ## Website routes
 
 - `/` displays the Waypoint homepage.
-- `/trails/` displays open database trails ordered by distance.
+- `/trails/` displays all open database Trails ordered by distance.
+- `/trails/?park=<park-id>` displays open Trails belonging to the selected Park.
 - `/report/` displays and processes the trail-report form.
 - `/search/` displays the trail search page.
 - `/search/?q=Lake` searches the temporary trail-name data.
 - `/admin/` displays the Django administration login page.
-- `/admin/trails/trail/` allows an administrator to manage trail records.
+- `/admin/trails/park/` allows an administrator to manage Park records.
+- `/admin/trails/trail/` allows an administrator to manage Trail records and assign Parks.
 
 ## Project structure
 
@@ -160,7 +248,9 @@ waypoint-term-project/
 ├── trails/
 │   ├── migrations/
 │   │   ├── __init__.py
-│   │   └── 0001_initial.py
+│   │   ├── 0001_initial.py
+│   │   ├── 0002_park_trail_park.py
+│   │   └── 0003_alter_trail_park.py
 │   ├── __init__.py
 │   ├── admin.py
 │   ├── apps.py
@@ -193,7 +283,7 @@ waypoint-term-project/
 └── README.md
 ```
 
-The local `env/`, `db.sqlite3`, `__pycache__/`, and compiled Python files are intentionally excluded from Git.
+The local `env/`, `db.sqlite3`, `__pycache__/`, compiled Python files, administrator accounts, and locally created Park and Trail records are intentionally excluded from Git.
 
 ## Python version
 
@@ -250,7 +340,7 @@ Apply the Django migrations:
 python manage.py migrate
 ```
 
-Confirm the `trails` migration:
+Confirm the Trail-app migrations:
 
 ```powershell
 python manage.py showmigrations trails
@@ -261,6 +351,8 @@ Expected migration status:
 ```text
 trails
  [X] 0001_initial
+ [X] 0002_park_trail_park
+ [X] 0003_alter_trail_park
 ```
 
 Run the complete test suite:
@@ -289,7 +381,9 @@ http://127.0.0.1:8000/trails/
 
 Stop the server by pressing `Ctrl + C` in the terminal.
 
-A fresh clone contains the database schema after migration but does not contain the trail records created in another local database. Trail records can be added through Django admin after creating a local superuser.
+A fresh clone contains the recreated database structure after migrations, but it does not contain the administrator account, Parks, or Trails created in another local database.
+
+The empty public catalog is therefore expected after a fresh clone.
 
 ## Create a local administrator account
 
@@ -313,7 +407,29 @@ Open Django admin:
 http://127.0.0.1:8000/admin/
 ```
 
-The superuser and trail records are stored only in the local `db.sqlite3` database, which is excluded from Git.
+The superuser is stored only in the local `db.sqlite3` database.
+
+## Add local Park and Trail records
+
+Because every Trail requires a Park, create Park records before creating Trail records.
+
+Open:
+
+```text
+http://127.0.0.1:8000/admin/trails/park/
+```
+
+Create the required Parks.
+
+Then open:
+
+```text
+http://127.0.0.1:8000/admin/trails/trail/
+```
+
+Create Trail records and assign one Park to every Trail.
+
+Local Park and Trail data is stored inside `db.sqlite3`, which is excluded from Git.
 
 ## Run the demonstrations
 
@@ -347,7 +463,7 @@ The following command runs the pure-Python tests and the Django tests together:
 python manage.py test
 ```
 
-The current project contains 63 tests.
+The current project contains 70 tests.
 
 Django creates a temporary test database while running the Django tests and destroys it when the tests finish.
 
@@ -355,15 +471,44 @@ Django creates a temporary test database while running the Django tests and dest
 
 The public trail catalog:
 
-- Uses records stored in the database
-- Displays only trails where `is_open=True`
-- Orders visible trails from shortest to longest
+- Uses Trail records stored in the database
+- Displays only Trails where `is_open=True`
+- Orders visible Trails from shortest to longest
+- Retrieves related Park information with `select_related("park")`
+- Displays each Trail’s Park name and region
+- Allows the user to filter open Trails by Park
+- Safely ignores invalid Park query-string values
 - Formats distance values to one decimal place
-- Displays `HARD` for open expert trails
-- Uses the shared Week 11 catalog template
-- Updates automatically when trail records are changed in Django admin
+- Displays `HARD` for open expert Trails
+- Uses the shared catalog template
+- Updates automatically when Trail or Park relationships are changed in Django admin
 
-Closed trails do not appear on the public catalog.
+Closed Trails do not appear in the public catalog.
+
+Filtering by Greenwood Forest Park displays:
+
+- Forest Ridge
+- Pine Valley Route
+
+## Park and Trail relationship behaviour
+
+Each Trail must reference one Park.
+
+A Park may contain multiple Trails through:
+
+```python
+park.trails.all()
+```
+
+Django admin allows an administrator to:
+
+- Create Parks
+- Search Parks by name or region
+- Assign a Park to each Trail
+- Search Trails by Trail name, Park name, or Park region
+- Filter Trails by Park, difficulty, or availability
+
+Django prevents deletion of a Park while Trails still reference it.
 
 ## Estimated-time formulas
 
@@ -394,7 +539,7 @@ Examples:
 - Equality and ordering convert the right-hand value before comparing.
 - Subtraction raises `ValueError` when it would produce a negative distance.
 
-The itinerary follows the same principle by converting every trail into the requested total-distance unit before adding the magnitudes.
+The itinerary follows the same principle by converting every Trail into the requested total-distance unit before adding the magnitudes.
 
 ## Troubleshooting
 
@@ -446,11 +591,29 @@ Create a superuser:
 python manage.py createsuperuser
 ```
 
-Then add trail records through:
+Create Park records through:
+
+```text
+http://127.0.0.1:8000/admin/trails/park/
+```
+
+Then create Trail records and assign their Parks through:
 
 ```text
 http://127.0.0.1:8000/admin/trails/trail/
 ```
+
+### A Trail cannot be created without a Park
+
+This is expected because the Park relationship is required.
+
+Create at least one Park first and select it when creating the Trail.
+
+### A Park cannot be deleted
+
+Django prevents a Park from being deleted when one or more Trails reference it.
+
+Reassign or delete the related Trails before attempting to delete the Park.
 
 ### A POST request returns `403 Forbidden`
 
