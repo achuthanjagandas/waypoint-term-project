@@ -1,72 +1,135 @@
 {% extends "base.html" %}
 
-{% block title %}
-Trail Catalog | Waypoint
-{% endblock %}
+{% block title %}Trail Catalog | Waypoint{% endblock %}
 
 {% block content %}
-<div class="container page-content">
-    <section class="catalog-heading">
+<section class="catalog-section">
+    <div class="catalog-heading">
         <p class="eyebrow">Explore Waypoint</p>
-        <h2>Trail catalog</h2>
+        <h1>Trail catalog</h1>
         <p>
             Compare trail distances, elevation gains, difficulties,
-            and current availability.
+            parks, and current availability.
         </p>
-    </section>
+    </div>
 
-    <section class="catalog-panel">
-        {% if trails %}
-            <div class="table-wrapper">
-                <table class="catalog-table">
-                    <thead>
-                        <tr>
-                            <th scope="col">No.</th>
-                            <th scope="col">Trail</th>
-                            <th scope="col">Distance</th>
-                            <th scope="col">Elevation gain</th>
-                            <th scope="col">Status</th>
-                        </tr>
-                    </thead>
+    <div class="catalog-filter-card">
+        <form method="get" class="park-filter-form">
+            <label for="park">Filter open trails by park</label>
 
-                    <tbody>
-                        {% for trail in trails %}
-                            <tr>
-                                <td>{{ forloop.counter }}</td>
-                                <td>
-                                    <strong>{{ trail.name }}</strong>
-                                </td>
-                                <td>
-                                    {{ trail.distance_km|floatformat:1 }} km
-                                </td>
-                                <td>
-                                    {{ trail.elevation_gain }} m
-                                </td>
-                                <td>
-                                    {% if not trail.is_open %}
-                                        <span class="badge badge-closed">
-                                            CLOSED
-                                        </span>
-                                    {% elif trail.difficulty == "expert" %}
-                                        <span class="badge badge-hard">
-                                            HARD
-                                        </span>
-                                    {% else %}
-                                        <span class="badge badge-standard">
-                                            {{ trail.difficulty|title }}
-                                        </span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="park-filter-controls">
+                <select id="park" name="park">
+                    <option value="">All parks</option>
+
+                    {% for park in parks %}
+                        <option
+                            value="{{ park.id }}"
+                            {% if selected_park and selected_park.id == park.id %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ park.name }} — {{ park.region }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <button class="button" type="submit">
+                    Apply filter
+                </button>
+
+                {% if selected_park %}
+                    <a
+                        class="button button-secondary"
+                        href="{% url 'catalog' %}"
+                    >
+                        Clear filter
+                    </a>
+                {% endif %}
             </div>
-        {% else %}
-            <p class="empty-message">
-                No trails are currently available.
+        </form>
+
+        {% if selected_park %}
+            <p class="filter-summary">
+                Showing open trails in
+                <strong>{{ selected_park.name }}</strong>
+                ({{ selected_park.region }}).
             </p>
         {% endif %}
-    </section>
-</div>
+    </div>
+
+    <div class="catalog-table-wrapper">
+        {% if trails %}
+            <table class="catalog-table">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Trail</th>
+                        <th>Park</th>
+                        <th>Distance</th>
+                        <th>Elevation gain</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for trail in trails %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+
+                            <td>
+                                <strong>{{ trail.name }}</strong>
+                            </td>
+
+                            <td>
+                                {% if trail.park %}
+                                    <strong>{{ trail.park.name }}</strong>
+                                    <span class="table-subtext">
+                                        {{ trail.park.region }}
+                                    </span>
+                                {% else %}
+                                    <span class="muted">
+                                        Not assigned
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {{ trail.distance_km|floatformat:1 }} km
+                            </td>
+
+                            <td>
+                                {{ trail.elevation_gain }} m
+                            </td>
+
+                            <td>
+                                {% if not trail.is_open %}
+                                    <span class="badge badge-closed">
+                                        CLOSED
+                                    </span>
+                                {% elif trail.difficulty == "expert" %}
+                                    <span class="badge badge-hard">
+                                        HARD
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-open">
+                                        {{ trail.get_difficulty_display }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% elif selected_park %}
+            <div class="empty-state">
+                No open trails are currently available in
+                {{ selected_park.name }}.
+            </div>
+        {% else %}
+            <div class="empty-state">
+                No trails are currently available.
+            </div>
+        {% endif %}
+    </div>
+</section>
 {% endblock %}
