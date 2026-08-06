@@ -37,8 +37,6 @@ class Trail(models.Model):
         Park,
         on_delete=models.PROTECT,
         related_name="trails",
-        null=True,
-        blank=True,
     )
     distance_km = models.DecimalField(
         max_digits=6,
