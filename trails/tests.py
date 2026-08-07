@@ -9,10 +9,10 @@ from .models import Park, Trail
 
 
 class ParkModelTests(TestCase):
-    """Test the database-backed Park model."""
+    """Test the Park database model."""
 
     def test_string_representation_includes_name_and_region(self):
-        park = Park(
+        park = Park.objects.create(
             name="Test Park",
             region="Test Region",
         )
@@ -34,36 +34,19 @@ class TrailModelTests(TestCase):
         )
 
         cls.trail = Trail.objects.create(
-            name="Test Trail",
             park=cls.park,
-            distance_km=Decimal("4.25"),
-            elevation_gain=150,
+            name="Lake View Trail",
+            distance_km=Decimal("5.25"),
+            elevation_gain=120,
             difficulty=Trail.Difficulty.EASY,
             is_open=True,
         )
 
-    def test_string_representation_uses_trail_name(self):
+    def test_trail_string_representation_returns_name(self):
         self.assertEqual(
             str(self.trail),
-            "Test Trail",
+            "Lake View Trail",
         )
-
-    def test_reverse_relationship_returns_park_trails(self):
-        trail_names = list(
-            self.park.trails.values_list(
-                "name",
-                flat=True,
-            )
-        )
-
-        self.assertEqual(
-            trail_names,
-            ["Test Trail"],
-        )
-
-    def test_protect_prevents_deleting_park_with_trails(self):
-        with self.assertRaises(ProtectedError):
-            self.park.delete()
 
     def test_park_relationship_is_required(self):
         with self.assertRaises(IntegrityError):
@@ -76,75 +59,87 @@ class TrailModelTests(TestCase):
                     is_open=True,
                 )
 
+    def test_park_reverse_relationship_returns_trails(self):
+        related_trails = list(self.park.trails.all())
+
+        self.assertEqual(
+            related_trails,
+            [self.trail],
+        )
+
+    def test_protected_park_cannot_be_deleted(self):
+        with self.assertRaises(ProtectedError):
+            self.park.delete()
+
 
 class TrailCatalogTests(TestCase):
-    """Test the public database-driven Trail catalog."""
+    """Test the database-backed Trail catalog and detail pages."""
 
     @classmethod
     def setUpTestData(cls):
-        cls.cedar = Park.objects.create(
+        cls.cedar_park = Park.objects.create(
             name="Cedar Lake Park",
             region="Central Ontario",
         )
 
-        cls.greenwood = Park.objects.create(
+        cls.greenwood_park = Park.objects.create(
             name="Greenwood Forest Park",
             region="Eastern Ontario",
         )
 
-        cls.northern = Park.objects.create(
+        cls.northern_park = Park.objects.create(
             name="Northern Peaks Park",
             region="Northern Ontario",
         )
 
-        Trail.objects.create(
+        cls.lake_view = Trail.objects.create(
+            park=cls.cedar_park,
             name="Lake View Trail",
-            park=cls.cedar,
             distance_km=Decimal("5.25"),
             elevation_gain=120,
             difficulty=Trail.Difficulty.EASY,
             is_open=True,
         )
 
-        Trail.objects.create(
+        cls.forest_ridge = Trail.objects.create(
+            park=cls.greenwood_park,
             name="Forest Ridge",
-            park=cls.greenwood,
             distance_km=Decimal("8.44"),
             elevation_gain=340,
             difficulty=Trail.Difficulty.MODERATE,
             is_open=True,
         )
 
-        Trail.objects.create(
-            name="Summit Loop",
-            park=cls.northern,
-            distance_km=Decimal("12.08"),
-            elevation_gain=780,
-            difficulty=Trail.Difficulty.EXPERT,
-            is_open=True,
-        )
-
-        Trail.objects.create(
-            name="River Path",
-            park=cls.cedar,
-            distance_km=Decimal("3.76"),
-            elevation_gain=45,
-            difficulty=Trail.Difficulty.EASY,
-            is_open=False,
-        )
-
-        Trail.objects.create(
+        cls.pine_valley = Trail.objects.create(
+            park=cls.greenwood_park,
             name="Pine Valley Route",
-            park=cls.greenwood,
             distance_km=Decimal("9.63"),
             elevation_gain=410,
             difficulty=Trail.Difficulty.MODERATE,
             is_open=True,
         )
 
-        Trail.objects.create(
+        cls.summit_loop = Trail.objects.create(
+            park=cls.northern_park,
+            name="Summit Loop",
+            distance_km=Decimal("12.08"),
+            elevation_gain=780,
+            difficulty=Trail.Difficulty.EXPERT,
+            is_open=True,
+        )
+
+        cls.river_path = Trail.objects.create(
+            park=cls.cedar_park,
+            name="River Path",
+            distance_km=Decimal("3.76"),
+            elevation_gain=45,
+            difficulty=Trail.Difficulty.EASY,
+            is_open=False,
+        )
+
+        cls.granite_peak = Trail.objects.create(
+            park=cls.northern_park,
             name="Granite Peak Trail",
-            park=cls.northern,
             distance_km=Decimal("14.91"),
             elevation_gain=960,
             difficulty=Trail.Difficulty.EXPERT,
@@ -157,45 +152,72 @@ class TrailCatalogTests(TestCase):
             "/trails/",
         )
 
-    def test_catalog_displays_only_open_trails_ordered_by_distance(self):
+    def test_catalog_reuses_shared_catalog_template(self):
         response = self.client.get(reverse("catalog"))
 
-        trail_names = list(
-            response.context["trails"].values_list(
-                "name",
-                flat=True,
-            )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response,
+            "catalog.html",
         )
 
+    def test_catalog_displays_each_open_trails_park(self):
+        response = self.client.get(reverse("catalog"))
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(
+            response,
+            self.cedar_park.name,
+        )
+        self.assertContains(
+            response,
+            self.cedar_park.region,
+        )
+
+        self.assertContains(
+            response,
+            self.greenwood_park.name,
+        )
+        self.assertContains(
+            response,
+            self.greenwood_park.region,
+        )
+
+        self.assertContains(
+            response,
+            self.northern_park.name,
+        )
+        self.assertContains(
+            response,
+            self.northern_park.region,
+        )
+
+    def test_catalog_open_trails_query_is_ordered_by_distance(self):
+        response = self.client.get(reverse("catalog"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "catalog.html")
+
+        displayed_trails = list(response.context["trails"])
+
         self.assertEqual(
-            trail_names,
+            displayed_trails,
             [
-                "Lake View Trail",
-                "Forest Ridge",
-                "Pine Valley Route",
-                "Summit Loop",
+                self.lake_view,
+                self.forest_ridge,
+                self.pine_valley,
+                self.summit_loop,
             ],
         )
 
         self.assertNotContains(
             response,
-            "River Path",
+            self.river_path.name,
         )
         self.assertNotContains(
             response,
-            "Granite Peak Trail",
-        )
-
-    def test_catalog_reuses_shared_catalog_template(self):
-        response = self.client.get(reverse("catalog"))
-
-        self.assertEqual(
-            response.status_code,
-            200,
-        )
-        self.assertTemplateUsed(
-            response,
-            "catalog.html",
+            self.granite_peak.name,
         )
 
     def test_catalog_formats_model_values_and_badges(self):
@@ -207,16 +229,19 @@ class TrailCatalogTests(TestCase):
         )
         self.assertContains(
             response,
-            "12.1 km",
+            "120 m",
         )
         self.assertContains(
             response,
-            "HARD",
+            "Easy",
         )
         self.assertContains(
             response,
             "Moderate",
-            count=2,
+        )
+        self.assertContains(
+            response,
+            "HARD",
         )
         self.assertNotContains(
             response,
@@ -239,73 +264,63 @@ class TrailCatalogTests(TestCase):
             page_html,
         )
 
-    def test_catalog_displays_each_open_trails_park(self):
-        response = self.client.get(reverse("catalog"))
-
-        self.assertContains(
-            response,
-            "Cedar Lake Park",
-        )
-        self.assertContains(
-            response,
-            "Greenwood Forest Park",
-        )
-        self.assertContains(
-            response,
-            "Northern Peaks Park",
-        )
-        self.assertContains(
-            response,
-            "Central Ontario",
-        )
-        self.assertContains(
-            response,
-            "Eastern Ontario",
-        )
-        self.assertContains(
-            response,
-            "Northern Ontario",
-        )
-
-    def test_filtering_by_park_returns_correct_open_trails(self):
+    def test_catalog_filters_open_trails_by_park(self):
         response = self.client.get(
             reverse("catalog"),
-            {"park": self.greenwood.pk},
-        )
-
-        trail_names = list(
-            response.context["trails"].values_list(
-                "name",
-                flat=True,
-            )
+            {"park": self.greenwood_park.id},
         )
 
         self.assertEqual(
-            trail_names,
+            response.status_code,
+            200,
+        )
+        self.assertEqual(
+            response.context["selected_park"],
+            self.greenwood_park,
+        )
+
+        displayed_trails = list(
+            response.context["trails"]
+        )
+
+        self.assertEqual(
+            displayed_trails,
             [
-                "Forest Ridge",
-                "Pine Valley Route",
+                self.forest_ridge,
+                self.pine_valley,
             ],
         )
 
-        self.assertEqual(
-            response.context["selected_park"],
-            self.greenwood,
+        self.assertContains(
+            response,
+            self.greenwood_park.name,
+        )
+        self.assertContains(
+            response,
+            self.greenwood_park.region,
+        )
+        self.assertContains(
+            response,
+            self.forest_ridge.name,
+        )
+        self.assertContains(
+            response,
+            self.pine_valley.name,
         )
 
         self.assertNotContains(
             response,
-            "Lake View Trail",
+            self.lake_view.name,
         )
         self.assertNotContains(
             response,
-            "Summit Loop",
+            self.summit_loop.name,
         )
 
-    def test_invalid_park_filter_does_not_crash(self):
+    def test_catalog_invalid_park_value_uses_all_parks(self):
         response = self.client.get(
             reverse("catalog"),
-            {"park": "not-a-number"},
+            {"park": "not-a-valid-id"},
         )
 
         self.assertEqual(
@@ -313,9 +328,81 @@ class TrailCatalogTests(TestCase):
             200,
         )
         self.assertIsNone(
-            response.context["selected_park"],
+            response.context["selected_park"]
         )
         self.assertEqual(
             response.context["trails"].count(),
             4,
+        )
+
+        self.assertContains(
+            response,
+            self.lake_view.name,
+        )
+        self.assertContains(
+            response,
+            self.forest_ridge.name,
+        )
+        self.assertContains(
+            response,
+            self.pine_valley.name,
+        )
+        self.assertContains(
+            response,
+            self.summit_loop.name,
+        )
+
+    def test_trail_detail_displays_existing_trail(self):
+        response = self.client.get(
+            reverse(
+                "trail_detail",
+                args=[self.lake_view.id],
+            )
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+        self.assertTemplateUsed(
+            response,
+            "trail_detail.html",
+        )
+        self.assertEqual(
+            response.context["trail"],
+            self.lake_view,
+        )
+
+        self.assertContains(
+            response,
+            self.lake_view.name,
+        )
+        self.assertContains(
+            response,
+            self.lake_view.park.name,
+        )
+        self.assertContains(
+            response,
+            self.lake_view.park.region,
+        )
+        self.assertContains(
+            response,
+            "5.3 km",
+        )
+        self.assertContains(
+            response,
+            "Open to visitors",
+        )
+
+    def test_trail_detail_returns_404_for_missing_trail(self):
+        response = self.client.get(
+            reverse(
+                "trail_detail",
+                args=[999999],
+            )
+        )
+
+        self.assertEqual(
+            response.status_code,
+            404,
         )

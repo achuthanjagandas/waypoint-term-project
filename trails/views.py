@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 
 from .models import Park, Trail
 
@@ -29,3 +29,16 @@ def catalog(request):
     }
 
     return render(request, "catalog.html", context)
+
+def trail_detail(request, trail_id):
+    """Display one Trail and its related Park information."""
+    trail = get_object_or_404(
+        Trail.objects.select_related("park"),
+        pk=trail_id,
+    )
+
+    context = {
+        "trail": trail,
+    }
+
+    return render(request, "trail_detail.html", context)

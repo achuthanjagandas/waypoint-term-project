@@ -3,71 +3,84 @@
 {% block title %}Trail Catalog | Waypoint{% endblock %}
 
 {% block content %}
-<section class="catalog-section">
-    <div class="catalog-heading">
-        <p class="eyebrow">Explore Waypoint</p>
-        <h1>Trail catalog</h1>
-        <p>
-            Compare trail distances, elevation gains, difficulties,
-            parks, and current availability.
-        </p>
-    </div>
-
-    <div class="catalog-filter-card">
-        <form method="get" class="park-filter-form">
-            <label for="park">Filter open trails by park</label>
-
-            <div class="park-filter-controls">
-                <select id="park" name="park">
-                    <option value="">All parks</option>
-
-                    {% for park in parks %}
-                        <option
-                            value="{{ park.id }}"
-                            {% if selected_park and selected_park.id == park.id %}
-                                selected
-                            {% endif %}
-                        >
-                            {{ park.name }} — {{ park.region }}
-                        </option>
-                    {% endfor %}
-                </select>
-
-                <button class="button" type="submit">
-                    Apply filter
-                </button>
-
-                {% if selected_park %}
-                    <a
-                        class="button button-secondary"
-                        href="{% url 'catalog' %}"
-                    >
-                        Clear filter
-                    </a>
-                {% endif %}
-            </div>
-        </form>
-
-        {% if selected_park %}
-            <p class="filter-summary">
-                Showing open trails in
-                <strong>{{ selected_park.name }}</strong>
-                ({{ selected_park.region }}).
+<section class="catalog-page">
+    <div class="container">
+        <header class="catalog-heading">
+            <p class="eyebrow">Explore Waypoint</p>
+            <h1>Trail catalog</h1>
+            <p>
+                Compare trail distances, elevation gains, difficulties,
+                parks, and current availability.
             </p>
-        {% endif %}
+        </header>
+
+        <section
+            class="form-card catalog-filter-card"
+            aria-labelledby="park-filter-heading"
+        >
+            <h2 id="park-filter-heading">Filter open trails by park</h2>
+
+            <form
+                class="catalog-filter-form"
+                method="get"
+                action="{% url 'catalog' %}"
+            >
+                <div class="catalog-filter-field">
+                    <label for="park">Park</label>
+
+                    <select id="park" name="park">
+                        <option value="">All parks</option>
+
+                        {% for park in parks %}
+                            <option
+                                value="{{ park.id }}"
+                                {% if selected_park and park.id == selected_park.id %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ park.name }} — {{ park.region }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="catalog-filter-actions">
+                    <button class="button" type="submit">
+                        Apply filter
+                    </button>
+
+                    {% if selected_park %}
+                        <a
+                            class="button button-secondary"
+                            href="{% url 'catalog' %}"
+                        >
+                            Clear filter
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+
+            {% if selected_park %}
+                <p class="filter-summary">
+                    Showing open trails in
+                    <strong>{{ selected_park.name }}</strong>
+                    ({{ selected_park.region }}).
+                </p>
+            {% endif %}
+        </section>
     </div>
 
-    <div class="catalog-table-wrapper">
-        {% if trails %}
+    {% if trails %}
+        <div class="table-wrapper catalog-table-wrapper">
             <table class="catalog-table">
                 <thead>
                     <tr>
-                        <th>No.</th>
-                        <th>Trail</th>
-                        <th>Park</th>
-                        <th>Distance</th>
-                        <th>Elevation gain</th>
-                        <th>Status</th>
+                        <th scope="col">No.</th>
+                        <th scope="col">Trail</th>
+                        <th scope="col">Park</th>
+                        <th scope="col">Distance</th>
+                        <th scope="col">Elevation gain</th>
+                        <th scope="col">Status</th>
                     </tr>
                 </thead>
 
@@ -77,20 +90,19 @@
                             <td>{{ forloop.counter }}</td>
 
                             <td>
-                                <strong>{{ trail.name }}</strong>
+                                <a
+                                    class="trail-link"
+                                    href="{% url 'trail_detail' trail.id %}"
+                                >
+                                    {{ trail.name }}
+                                </a>
                             </td>
 
                             <td>
-                                {% if trail.park %}
-                                    <strong>{{ trail.park.name }}</strong>
-                                    <span class="table-subtext">
-                                        {{ trail.park.region }}
-                                    </span>
-                                {% else %}
-                                    <span class="muted">
-                                        Not assigned
-                                    </span>
-                                {% endif %}
+                                <strong>{{ trail.park.name }}</strong>
+                                <span class="park-region">
+                                    {{ trail.park.region }}
+                                </span>
                             </td>
 
                             <td>
@@ -103,15 +115,15 @@
 
                             <td>
                                 {% if not trail.is_open %}
-                                    <span class="badge badge-closed">
+                                    <span class="badge status-badge badge-closed">
                                         CLOSED
                                     </span>
                                 {% elif trail.difficulty == "expert" %}
-                                    <span class="badge badge-hard">
+                                    <span class="badge status-badge badge-hard">
                                         HARD
                                     </span>
                                 {% else %}
-                                    <span class="badge badge-open">
+                                    <span class="badge status-badge badge-difficulty">
                                         {{ trail.get_difficulty_display }}
                                     </span>
                                 {% endif %}
@@ -120,16 +132,18 @@
                     {% endfor %}
                 </tbody>
             </table>
-        {% elif selected_park %}
+        </div>
+    {% else %}
+        <div class="container">
             <div class="empty-state">
-                No open trails are currently available in
-                {{ selected_park.name }}.
+                {% if selected_park %}
+                    No open trails are currently available in
+                    {{ selected_park.name }}.
+                {% else %}
+                    No trails are currently available.
+                {% endif %}
             </div>
-        {% else %}
-            <div class="empty-state">
-                No trails are currently available.
-            </div>
-        {% endif %}
-    </div>
+        </div>
+    {% endif %}
 </section>
 {% endblock %}

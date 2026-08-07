@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}{{ trail.name }} | Waypoint{% endblock %}
+
+{% block content %}
+<section class="trail-detail-page">
+    <div class="container">
+        <div class="trail-detail-heading">
+            <p class="eyebrow">Trail information</p>
+            <h1>{{ trail.name }}</h1>
+            <p>
+                Review the trail distance, elevation, difficulty,
+                availability, and park information.
+            </p>
+        </div>
+
+        <article class="trail-detail-card">
+            <div class="trail-detail-header">
+                <div>
+                    <p class="detail-label">Trail</p>
+                    <h2>{{ trail.name }}</h2>
+                </div>
+
+                {% if trail.is_open %}
+                    <span class="detail-status detail-status-open">
+                        Open
+                    </span>
+                {% else %}
+                    <span class="detail-status detail-status-closed">
+                        Closed
+                    </span>
+                {% endif %}
+            </div>
+
+            <dl class="trail-detail-grid">
+                <div class="trail-detail-item">
+                    <dt>Park</dt>
+                    <dd>{{ trail.park.name }}</dd>
+                </div>
+
+                <div class="trail-detail-item">
+                    <dt>Region</dt>
+                    <dd>{{ trail.park.region }}</dd>
+                </div>
+
+                <div class="trail-detail-item">
+                    <dt>Distance</dt>
+                    <dd>{{ trail.distance_km|floatformat:1 }} km</dd>
+                </div>
+
+                <div class="trail-detail-item">
+                    <dt>Elevation gain</dt>
+                    <dd>{{ trail.elevation_gain }} m</dd>
+                </div>
+
+                <div class="trail-detail-item">
+                    <dt>Difficulty</dt>
+                    <dd>{{ trail.get_difficulty_display }}</dd>
+                </div>
+
+                <div class="trail-detail-item">
+                    <dt>Availability</dt>
+                    <dd>
+                        {% if trail.is_open %}
+                            Open to visitors
+                        {% else %}
+                            Currently closed
+                        {% endif %}
+                    </dd>
+                </div>
+            </dl>
+
+            <div class="trail-detail-actions">
+                <a class="button" href="{% url 'catalog' %}">
+                    Return to catalog
+                </a>
+            </div>
+        </article>
+    </div>
+</section>
+{% endblock %}

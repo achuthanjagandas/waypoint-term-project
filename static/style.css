@@ -461,3 +461,133 @@ form textarea:focus {
         text-align: center;
     }
 }
+
+/* Week 14 trail detail page */
+
+.trail-link {
+    color: var(--primary-dark);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.trail-link:hover,
+.trail-link:focus {
+    text-decoration: underline;
+}
+
+.trail-detail-page {
+    padding: 3rem 0 5rem;
+}
+
+.trail-detail-heading {
+    max-width: 760px;
+    margin: 0 auto 2rem;
+    text-align: center;
+}
+
+.trail-detail-heading h1 {
+    margin: 0.35rem 0 0.75rem;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+}
+
+.trail-detail-heading > p:last-child {
+    color: var(--muted);
+}
+
+.trail-detail-card {
+    max-width: 850px;
+    margin: 0 auto;
+    padding: 2rem;
+    border: 1px solid var(--border);
+    border-radius: 0.85rem;
+    background: var(--surface);
+}
+
+.trail-detail-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.trail-detail-header h2 {
+    margin: 0.25rem 0 0;
+}
+
+.detail-label {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08rem;
+    text-transform: uppercase;
+}
+
+.detail-status {
+    display: inline-block;
+    min-width: 85px;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.detail-status-open {
+    background: #dceee4;
+    color: #20583d;
+}
+
+.detail-status-closed {
+    background: #f6dada;
+    color: #8b2f2f;
+}
+
+.trail-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.trail-detail-item {
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 0.65rem;
+    background: var(--background);
+}
+
+.trail-detail-item dt {
+    margin-bottom: 0.3rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.05rem;
+    text-transform: uppercase;
+}
+
+.trail-detail-item dd {
+    margin: 0;
+    font-weight: 700;
+}
+
+.trail-detail-actions {
+    padding-top: 0.5rem;
+    text-align: center;
+}
+
+@media (max-width: 650px) {
+    .trail-detail-card {
+        padding: 1.25rem;
+    }
+
+    .trail-detail-header {
+        flex-direction: column;
+    }
+
+    .trail-detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
